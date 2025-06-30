@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using UnrealSharp.Core;
 using UnrealSharp.Core.Marshallers;
 using UnrealSharp.CoreUObject;
@@ -15,10 +16,12 @@ public struct FFieldPathUnsafe {
     internal TWeakObjectPtr<UStruct> ResolvedOwner;
     internal UnmanagedArray Path;
 
+    
 }
 
 [StructLayout(LayoutKind.Sequential)]
 public struct FFieldPath {
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     internal FFieldPathUnsafe PathUnsafe;
 
     public FFieldPath(FFieldPathUnsafe pathUnsafe) {
