@@ -48,7 +48,7 @@ enum class ECSPropertyType : uint8
 	String,
 	Name,
 	Text,
-
+	
 	GameplayTag,
 	GameplayTagContainer,
 
