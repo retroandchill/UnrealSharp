@@ -35,6 +35,7 @@ public enum FunctionType
     ExtensionOnAnotherClass,
     InternalWhitelisted,
     GetterSetter,
+    Throwing
 };
 
 public enum OverloadMode
@@ -48,6 +49,7 @@ public enum EBlueprintVisibility
     Call,
     Event,
     GetterSetter,
+    Throwing
 };
 
 public struct FunctionOverload
@@ -77,6 +79,7 @@ public class FunctionExporter
     public string Modifiers { get; private set; } = "";
     
     protected bool BlueprintEvent => _blueprintVisibility == EBlueprintVisibility.Event;
+    protected bool Throwing => _blueprintVisibility == EBlueprintVisibility.Throwing;
     protected string _invokeFunction = "";
     protected string _invokeFirstArgument = "";
 
@@ -450,11 +453,18 @@ public class FunctionExporter
             overloadMode = OverloadMode.SuppressOverloads;
             blueprintVisibility = EBlueprintVisibility.GetterSetter;
         }
+        else if (functionType == FunctionType.Throwing)
+        {
+            blueprintVisibility = EBlueprintVisibility.Throwing;
+        }
         
         builder.TryAddWithEditor(function);
         FunctionExporter exporter = new FunctionExporter(function);
         exporter.Initialize(overloadMode, protectionMode, blueprintVisibility);
-        exporter.ExportFunctionVariables(builder);
+        if (functionType != FunctionType.Throwing)
+        {
+            exporter.ExportFunctionVariables(builder);
+        }
         exporter.ExportOverloads(builder);
         exporter.ExportFunction(builder);
 
@@ -788,12 +798,20 @@ public class FunctionExporter
         
         ExportSignature(builder, Modifiers);
         builder.OpenBrace();
-        builder.BeginUnsafeBlock();
         
-        ExportInvoke(builder);
+        if (Throwing)
+        {
+            builder.AppendLine($"throw new InvalidOperationException(\"Function {_function.EngineName} cannot be called on a Blueprint-only implementer\");");
+        }
+        else
+        {
+            
+            builder.BeginUnsafeBlock();
+            ExportInvoke(builder);
+            builder.EndUnsafeBlock();
+        }
         
         builder.CloseBrace();
-        builder.EndUnsafeBlock();
         builder.AppendLine();
     }
 
