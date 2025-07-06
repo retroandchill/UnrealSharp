@@ -400,6 +400,7 @@ public unsafe class MapBase<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValu
 // Used for members only
 public class MapMarshaller<TKey, TValue>
 {
+    private TMap<TKey, TValue>? _mapWrapper;
     private readonly IntPtr _nativeProperty;
     private readonly MarshallingDelegates<TKey>.FromNative _keyFromNative;
     private readonly MarshallingDelegates<TKey>.ToNative _keyToNative;
@@ -434,7 +435,8 @@ public class MapMarshaller<TKey, TValue>
     
     public TMap<TKey, TValue> FromNative(IntPtr nativeBuffer, int arrayIndex)
     {
-        return MakeWrapper(nativeBuffer);
+        return _mapWrapper ??= MakeWrapper(nativeBuffer);
+
     }
 }
 
