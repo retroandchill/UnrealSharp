@@ -10,7 +10,7 @@ public class IntPropertyTranslator : BlittableTypePropertyTranslator
     {
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         if (property.Outer is UhtFunction function && property.IsCustomStructureType())
         {

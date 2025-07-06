@@ -10,7 +10,7 @@ public class ClassPropertyTranslator : SimpleTypePropertyTranslator
     {
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         UhtClassProperty classProperty = (UhtClassProperty)property;
         string fullName = property.IsGenericType() ? "DOT" 

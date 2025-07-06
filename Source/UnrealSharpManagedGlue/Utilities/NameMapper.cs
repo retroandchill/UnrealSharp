@@ -83,9 +83,9 @@ public static class NameMapper
         return $"typeof({structName}).GetAssemblyName()";
     }
     
-    public static string GetFullManagedName(this UhtType type)
+    public static string GetFullManagedName(this UhtType type, bool nullable = false)
     {
-        return $"{type.GetNamespace()}.{type.GetStructName()}";
+        return $"{type.GetNamespace()}.{type.GetStructName()}{(nullable ? "?" : "")}";
     }
     
     static readonly string[] MetadataKeys = { "ScriptName", "ScriptMethod", "DisplayName" };

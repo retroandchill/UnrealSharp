@@ -68,7 +68,7 @@ public class SimpleTypePropertyTranslator : PropertyTranslator
         return property.GetType() == _propertyType || property.GetType().IsSubclassOf(_propertyType);
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         return property.IsGenericType() ? "DOT" : ManagedType;
     }

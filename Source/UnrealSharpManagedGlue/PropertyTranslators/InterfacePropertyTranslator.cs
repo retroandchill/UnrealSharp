@@ -9,10 +9,10 @@ public class InterfacePropertyTranslator : SimpleTypePropertyTranslator
     {
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         UhtInterfaceProperty interfaceProperty = (UhtInterfaceProperty)property;
-        return interfaceProperty.InterfaceClass.GetFullManagedName();
+        return $"{interfaceProperty.InterfaceClass.GetFullManagedName()}{(nullable ? "?" : "")}";
     }
 
     public override string GetMarshaller(UhtProperty property)

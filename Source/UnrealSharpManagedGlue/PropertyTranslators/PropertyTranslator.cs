@@ -49,7 +49,7 @@ public abstract class PropertyTranslator
 
     // Get the managed type for this property
     // Example: "int" for a property of type "int32"
-    public abstract string GetManagedType(UhtProperty property);
+    public abstract string GetManagedType(UhtProperty property, bool nullable = false);
     
     // Get the marshaller for this property to marshal back and forth between C++ and C#
     public abstract string GetMarshaller(UhtProperty property);

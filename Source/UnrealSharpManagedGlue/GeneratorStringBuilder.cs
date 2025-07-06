@@ -150,6 +150,7 @@ public class GeneratorStringBuilder : IDisposable
     
     public void GenerateTypeSkeleton(string typeNameSpace, bool blittable = false)
     {
+        AppendLine("#nullable enable");
         DeclareDirective(ScriptGeneratorUtilities.AttributeNamespace);
         DeclareDirective(ScriptGeneratorUtilities.CoreAttributeNamespace);
         DeclareDirective(ScriptGeneratorUtilities.InteropNamespace);

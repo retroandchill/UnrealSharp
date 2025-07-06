@@ -15,7 +15,7 @@ public class SoftObjectPropertyTranslator : SimpleTypePropertyTranslator
         return property is UhtSoftObjectProperty;
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         UhtSoftObjectProperty softObjectProperty = (UhtSoftObjectProperty)property;
         string fullName = softObjectProperty.Class.GetFullManagedName();

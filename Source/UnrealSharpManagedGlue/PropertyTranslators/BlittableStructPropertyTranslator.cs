@@ -20,7 +20,7 @@ public class BlittableStructPropertyTranslator : BlittableTypePropertyTranslator
         return structProperty.ScriptStruct.IsStructBlittable();
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         UhtStructProperty structProperty = (UhtStructProperty) property;
         return structProperty.ScriptStruct.GetFullManagedName();

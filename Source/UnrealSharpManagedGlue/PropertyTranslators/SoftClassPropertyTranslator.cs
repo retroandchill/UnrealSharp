@@ -10,7 +10,7 @@ public class SoftClassPropertyTranslator : SimpleTypePropertyTranslator
         
     }
     
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         UhtSoftClassProperty softClassProperty = (UhtSoftClassProperty)property;
         string fullName = property.IsGenericType()

@@ -12,7 +12,7 @@ public class StructPropertyTranslator : SimpleTypePropertyTranslator
     public override bool ExportDefaultParameter => false;
     public override bool IsBlittable => false;
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
        UhtStructProperty structProperty = (UhtStructProperty)property; 
        return structProperty.ScriptStruct.GetFullManagedName();

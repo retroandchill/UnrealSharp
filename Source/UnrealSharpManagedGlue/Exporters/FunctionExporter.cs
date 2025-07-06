@@ -71,6 +71,7 @@ public class FunctionExporter
     protected OverloadMode _overloadMode = OverloadMode.AllowOverloads;
     protected EFunctionProtectionMode _protectionMode = EFunctionProtectionMode.UseUFunctionProtection;
     protected EBlueprintVisibility _blueprintVisibility = EBlueprintVisibility.Call;
+    private HashSet<string> _nullableParameters = [];
 
     protected bool BlittableFunction;
     
@@ -143,6 +144,11 @@ public class FunctionExporter
         _protectionMode = protectionMode;
         _blueprintVisibility = blueprintVisibility;
 
+        if (_function.HasMetadata("NullableParams")) 
+        { 
+            _nullableParameters = _function.GetMetadata("NullableParams").Split(',').ToHashSet();
+        }
+
         _parameterTranslators = new List<PropertyTranslator>(_function.Children.Count);
         
         bool isBlittable = true;
@@ -202,9 +208,10 @@ public class FunctionExporter
         if (_selfParameter != null)
         {
             PropertyTranslator translator = PropertyTranslatorManager.GetTranslator(_selfParameter)!;
+            bool isNullable = _nullableParameters.Contains(_selfParameter.SourceName);
             string paramType = _classBeingExtended != null
                 ? _classBeingExtended.GetFullManagedName()
-                : translator.GetManagedType(_selfParameter);
+                : translator.GetManagedType(_selfParameter, isNullable);
             
             paramString = $"this {paramType} {_selfParameter.GetParameterName()}, ";
             _paramStringApiWithDefaults = paramString;
@@ -231,7 +238,7 @@ public class FunctionExporter
             
             string refQualifier = GetRefQualifier(parameter);
             string parameterName = GetParameterName(parameter);
-            string parameterManagedType = translator.GetManagedType(parameter);
+            string parameterManagedType = translator.GetManagedType(parameter, _nullableParameters.Contains(parameter.SourceName));
 
             if (!translator.ShouldBeDeclaredAsParameter)
             {
@@ -471,6 +478,8 @@ public class FunctionExporter
     
     public static void ExportOverridableFunction(GeneratorStringBuilder builder, UhtFunction function)
     {
+        var nullableParameters = function.HasMetadata("NullableParams") ? function.GetMetadata("NullableParams").Split(',').ToHashSet() : [];
+        
         builder.TryAddWithEditor(function);
         
         string paramsStringApi = "";
@@ -484,8 +493,9 @@ public class FunctionExporter
                 continue;
             }
 
+            bool isParamNullable = nullableParameters.Contains(parameter.SourceName);
             string paramName = parameter.GetParameterName();
-            string paramType = PropertyTranslatorManager.GetTranslator(parameter)!.GetManagedType(parameter);
+            string paramType = PropertyTranslatorManager.GetTranslator(parameter)!.GetManagedType(parameter, isParamNullable);
             
             string refQualifier = "";
             if (!parameter.HasAllFlags(EPropertyFlags.ConstParm))
@@ -516,7 +526,7 @@ public class FunctionExporter
         FunctionExporter exportFunction = ExportFunction(builder, function, FunctionType.BlueprintEvent);
         
         string returnType = function.ReturnProperty != null
-            ? PropertyTranslatorManager.GetTranslator(function.ReturnProperty)!.GetManagedType(function.ReturnProperty)
+            ? PropertyTranslatorManager.GetTranslator(function.ReturnProperty)!.GetManagedType(function.ReturnProperty, nullableParameters.Contains("ReturnValue"))
             : "void";
         
         builder.AppendLine("// Hide implementation function from Intellisense");
@@ -558,7 +568,8 @@ public class FunctionExporter
         string returnAssignment = "";
         exportFunction.ForEachParameter((translator, parameter) =>
         {
-            string paramType = translator.GetManagedType(parameter);
+            bool isParamNullable = nullableParameters.Contains(parameter.SourceName);
+            string paramType = translator.GetManagedType(parameter, isParamNullable);
 
             if (parameter.HasAllFlags(EPropertyFlags.ReturnParm))
             {
@@ -677,7 +688,7 @@ public class FunctionExporter
         string returnManagedType = "void";
         if (ReturnValueTranslator != null)
         {
-            returnManagedType = ReturnValueTranslator.GetManagedType(_function.ReturnProperty!);
+            returnManagedType = ReturnValueTranslator.GetManagedType(_function.ReturnProperty!, IsReturnValueNullable);
         }
         
         string functionNameToUse = _function.IsAutocast() ? _function.GetBlueprintAutocastName() : _functionName;
@@ -753,7 +764,7 @@ public class FunctionExporter
             string returnStatement = "";
             if (_function.ReturnProperty != null)
             {
-                returnType = ReturnValueTranslator!.GetManagedType(_function.ReturnProperty);
+                returnType = ReturnValueTranslator!.GetManagedType(_function.ReturnProperty, IsReturnValueNullable);
                 returnStatement = "return ";
             }
 
@@ -918,7 +929,7 @@ public class FunctionExporter
                     string marshalDestination;
                     if (parameter.HasAllFlags(EPropertyFlags.ReturnParm))
                     {
-                        builder.AppendLine($"{ReturnValueTranslator!.GetManagedType(parameter)} returnValue;");
+                        builder.AppendLine($"{ReturnValueTranslator!.GetManagedType(parameter, IsReturnValueNullable)} returnValue;");
                         marshalDestination = "returnValue";
                     }
                     else
@@ -1009,7 +1020,7 @@ public class FunctionExporter
         builder.AppendLine(attributeBuilder.ToString());
 
         string returnType = _function.ReturnProperty != null
-            ? ReturnValueTranslator!.GetManagedType(_function.ReturnProperty)
+            ? ReturnValueTranslator!.GetManagedType(_function.ReturnProperty, IsReturnValueNullable)
             : "void";
 
         List<string> genericTypes = new List<string>();
@@ -1039,7 +1050,9 @@ public class FunctionExporter
             builder.AppendLine($"{protection}{returnType} {_functionName}({_paramStringApiWithDefaults})");
         }
     }
-    
+
+    private bool IsReturnValueNullable => _nullableParameters.Contains("ReturnValue");
+
 
     void ExportDeprecation(GeneratorStringBuilder builder)
     {

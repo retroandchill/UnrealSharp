@@ -23,7 +23,7 @@ public class EnumPropertyTranslator : BlittableTypePropertyTranslator
         return $"{GetManagedType(parameter)}.{valueName}";
     }
     
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         UhtEnum enumObj = GetEnum(property)!;
         return enumObj.GetFullManagedName();

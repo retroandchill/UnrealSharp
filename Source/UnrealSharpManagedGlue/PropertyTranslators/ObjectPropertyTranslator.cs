@@ -31,12 +31,13 @@ public class ObjectPropertyTranslator : SimpleTypePropertyTranslator
         return "null";
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
-        if (property.IsGenericType()) return "DOT";
+        string nullableExtension = nullable ? "?" : "";
+        if (property.IsGenericType()) return $"DOT{nullableExtension}";
 
         UhtObjectProperty objectProperty = (UhtObjectProperty)property;
-        return objectProperty.Class.GetFullManagedName();
+        return $"{objectProperty.Class.GetFullManagedName()}{nullableExtension}";
     }
 
     public override string GetMarshaller(UhtProperty property)

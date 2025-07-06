@@ -13,7 +13,7 @@ public class WeakObjectPropertyTranslator : BlittableTypePropertyTranslator
     
     public override bool ExportDefaultParameter => false;
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         UhtWeakObjectPtrProperty weakObjectProperty = (UhtWeakObjectPtrProperty)property;
         string fullName = weakObjectProperty.Class.GetFullManagedName();

@@ -20,7 +20,7 @@ public class MulticastDelegatePropertyTranslator : DelegateBasePropertyTranslato
         return ScriptGeneratorUtilities.CanExportParameters(multicastDelegateProperty.Function);
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         UhtMulticastDelegateProperty multicastDelegateProperty = (UhtMulticastDelegateProperty) property;
         return $"TMulticastDelegate<{GetFullDelegateName(multicastDelegateProperty.Function)}>";

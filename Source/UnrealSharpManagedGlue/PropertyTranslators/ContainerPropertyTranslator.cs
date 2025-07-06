@@ -33,7 +33,7 @@ public class ContainerPropertyTranslator : PropertyTranslator
         return translator != null && translator.CanExport(containerProperty.ValueProperty) && translator.IsSupportedAsInner();
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         return GetWrapperInterface(property);
     }

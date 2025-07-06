@@ -37,7 +37,7 @@ public class MapPropertyTranslator : PropertyTranslator
         return keyTranslator.IsSupportedAsInner() && valueTranslator.IsSupportedAsInner();
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         UhtMapProperty mapProperty = (UhtMapProperty) property;
         PropertyTranslator keyTranslator = PropertyTranslatorManager.GetTranslator(mapProperty.KeyProperty)!;

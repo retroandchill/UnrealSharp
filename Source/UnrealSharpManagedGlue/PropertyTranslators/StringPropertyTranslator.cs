@@ -17,7 +17,7 @@ public class StringPropertyTranslator : PropertyTranslator
         return property is UhtStrProperty;
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         return "string";
     }

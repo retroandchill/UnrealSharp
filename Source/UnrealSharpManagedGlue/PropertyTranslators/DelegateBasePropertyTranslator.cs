@@ -33,7 +33,7 @@ public class DelegateBasePropertyTranslator : PropertyTranslator
         throw new System.NotImplementedException();
     }
 
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         throw new System.NotImplementedException();
     }

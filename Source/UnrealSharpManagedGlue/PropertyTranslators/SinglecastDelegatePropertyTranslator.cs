@@ -16,7 +16,7 @@ public class SinglecastDelegatePropertyTranslator : DelegateBasePropertyTranslat
         return ScriptGeneratorUtilities.CanExportParameters(delegateProperty.Function) && !hasReturnValue;
     }
     
-    public override string GetManagedType(UhtProperty property)
+    public override string GetManagedType(UhtProperty property, bool nullable = false)
     {
         return $"TDelegate<{GetFullDelegateName(((UhtDelegateProperty) property).Function)}>";
     }
