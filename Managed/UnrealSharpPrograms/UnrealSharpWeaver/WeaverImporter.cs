@@ -80,6 +80,8 @@ public class WeaverImporter
     
     public TypeDefinition ScriptInterfaceWrapper = null!;
     public TypeDefinition ScriptInterfaceMarshaller = null!;
+    public TypeReference ManagedObjectHandle = null!;
+    public TypeReference UnmanagedDataStore = null!;
     
     public MethodReference BlittableTypeConstructor = null!;
 
@@ -152,6 +154,9 @@ public class WeaverImporter
         
         ScriptInterfaceWrapper = UnrealSharpAssembly.FindType("IScriptInterface", CoreUObjectNamespace)!.Resolve();
         ScriptInterfaceMarshaller = UnrealSharpAssembly.FindType("ScriptInterfaceMarshaller`1", CoreUObjectNamespace)!.Resolve();
+        
+        ManagedObjectHandle = UnrealSharpAssembly.FindType("FSharedGCHandle", "UnrealSharp.UnrealSharpCore")!.Resolve();
+        UnmanagedDataStore = UnrealSharpAssembly.FindType("FUnmanagedDataStore", "UnrealSharp.UnrealSharpCore")!.Resolve();
     }
 
     private static MethodReference FindBindingsStaticMethod(string findNamespace, string findClass, string findMethod)
