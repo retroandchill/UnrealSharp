@@ -69,15 +69,9 @@ public static class StructExporter
 
         if (isCopyable)
         {
-            if (isDestructible)
-            {
-                stringBuilder.AppendLine("private NativeStructHandle NativeHandle;");
-                stringBuilder.AppendLine("private byte[] Allocation => NativeHandle?.NativeStructPtr;");
-            }
-            else
-            {
-                stringBuilder.AppendLine("private byte[] Allocation;");
-            }
+            stringBuilder.AppendLine(isDestructible
+                ? "private NativeStructHandle NativeHandle;"
+                : "private byte[] Allocation;");
         }
         
         // For manual exports we just want to generate attributes
@@ -188,19 +182,40 @@ public static class StructExporter
     public static void ExportMirrorStructMarshalling(GeneratorStringBuilder builder, UhtScriptStruct structObj, List<UhtProperty> properties)
     {
         string structName = structObj.GetStructName();
+        bool isCopyable = structObj.IsStructNativelyCopyable();
+        bool isDestructible = structObj.IsStructNativelyDestructible();
+        if (isCopyable)
+        {
+            builder.AppendLine();
+            builder.AppendLine($"public {structName}()");
+            builder.OpenBrace();
+            builder.AppendLine(isDestructible
+                ? "NativeHandle = new NativeStructHandle(NativeClassPtr);"
+                : "Allocation = new byte[NativeDataSize];");
+            builder.CloseBrace();
+        }
+
         builder.AppendLine();
         builder.AppendLine($"public {structName}(IntPtr InNativeStruct)");
         builder.OpenBrace();
         builder.BeginUnsafeBlock();
 
-        if (structObj.IsStructNativelyCopyable())
+        if (isCopyable)
         {
-            builder.AppendLine(structObj.IsStructNativelyDestructible()
-                ? "NativeHandle = new NativeStructHandle(NativeClassPtr);"
-                : "Allocation = new byte[NativeDataSize];");
-
-            builder.AppendLine("fixed (byte* AllocationPointer = Allocation)");
-            builder.OpenBrace();
+            if (isDestructible)
+            {
+                builder.AppendLine("NativeHandle = new NativeStructHandle(NativeClassPtr);");
+                builder.AppendLine("fixed (NativeStructHandleData* StructDataPointer = &NativeHandle.Data)");
+                builder.OpenBrace();
+                builder.AppendLine($"IntPtr AllocationPointer = {ExporterCallbacks.UScriptStructCallbacks}.CallGetStructLocation(StructDataPointer, NativeClassPtr);");
+            }
+            else
+            {
+                builder.AppendLine("Allocation = new byte[NativeDataSize];");
+                builder.AppendLine("fixed (byte* AllocationPointer = Allocation)");
+                builder.OpenBrace();
+            }
+            
             builder.AppendLine($"{ExporterCallbacks.UScriptStructCallbacks}.CallNativeCopy(NativeClassPtr, InNativeStruct, (nint) AllocationPointer);");
             builder.CloseBrace();
         }
@@ -231,14 +246,28 @@ public static class StructExporter
         
         if (structObj.IsStructNativelyCopyable())
         {
-            builder.AppendLine("if (Allocation is null)");
-            builder.OpenBrace();
-            builder.AppendLine(structObj.IsStructNativelyDestructible()
-                ? "NativeHandle = new NativeStructHandle(NativeClassPtr);"
-                : "Allocation = new byte[NativeDataSize];");
-            builder.CloseBrace();
-            builder.AppendLine("fixed (byte* AllocationPointer = Allocation)");
-            builder.OpenBrace();
+            if (structObj.IsStructNativelyDestructible())
+            {
+                builder.AppendLine("if (NativeHandle is null)");
+                builder.OpenBrace();
+                builder.AppendLine("NativeHandle = new NativeStructHandle(NativeClassPtr);");
+                builder.CloseBrace();
+                builder.AppendLine();
+                builder.AppendLine("fixed (NativeStructHandleData* StructDataPointer = &NativeHandle.Data)");
+                builder.OpenBrace();
+                builder.AppendLine($"IntPtr AllocationPointer = {ExporterCallbacks.UScriptStructCallbacks}.CallGetStructLocation(StructDataPointer, NativeClassPtr);");
+            }
+            else
+            {
+                builder.AppendLine("if (Allocation is null)");
+                builder.OpenBrace();
+                builder.AppendLine("Allocation = new byte[NativeDataSize];");
+                builder.AppendLine();
+                builder.CloseBrace();
+                builder.AppendLine("fixed (byte* AllocationPointer = Allocation)");
+                builder.OpenBrace();
+            }
+            
             builder.AppendLine($"{ExporterCallbacks.UScriptStructCallbacks}.CallNativeCopy(NativeClassPtr, (nint) AllocationPointer, buffer);");
             builder.CloseBrace();
         }
