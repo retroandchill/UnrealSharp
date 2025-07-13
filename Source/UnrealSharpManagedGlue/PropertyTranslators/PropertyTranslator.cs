@@ -446,7 +446,7 @@ public abstract class PropertyTranslator
         }
         else
         {
-            builder.AppendLine($"{protection}{managedType} {propertyScriptName};");
+            builder.AppendLine($"{protection}{managedType} {propertyScriptName} {{ get; set; }}");
         }
         builder.AppendLine();
     }
