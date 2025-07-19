@@ -211,7 +211,7 @@ void FCSProcHelper::GetProjectNamesByLoadOrder(TArray<FString>& UserProjectNames
 	{
 		FString ProjectName = OrderEntry->AsString();
 
-		if (!bIncludeProjectGlue && ProjectName == TEXT("ProjectGlue"))
+		if (!bIncludeProjectGlue && (ProjectName == TEXT("ProjectGlue") || ProjectName.EndsWith(TEXT("PluginGlue"))))
 		{
 			continue;
 		}
@@ -223,15 +223,46 @@ void FCSProcHelper::GetProjectNamesByLoadOrder(TArray<FString>& UserProjectNames
 
 void FCSProcHelper::GetAssemblyPathsByLoadOrder(TArray<FString>& AssemblyPaths, const bool bIncludeProjectGlue)
 {
-	FString AbsoluteFolderPath = GetUserAssemblyDirectory();
+    TArray<FString> AbsoluteFolderPaths = { GetUserAssemblyDirectory() };
+
+    IPluginManager& PluginManager = IPluginManager::Get();
+    TArray<TSharedRef<IPlugin>> EnabledPlugins = PluginManager.GetEnabledPlugins();
+
+    for (const TSharedRef<IPlugin>& Plugin : EnabledPlugins)
+    {
+        const FString PluginFilePath = Plugin->GetBaseDir();
+        if (!FPaths::IsUnderDirectory(PluginFilePath, GetPluginsDirectory()))
+        {
+            continue;
+        }
+
+
+        FString ScriptDirectory = FPaths::Combine(PluginFilePath, "Binaries", "Managed");
+        AbsoluteFolderPaths.Add(ScriptDirectory);
+    }
 
 	TArray<FString> ProjectNames;
 	GetProjectNamesByLoadOrder(ProjectNames, bIncludeProjectGlue);
 
 	for (const FString& ProjectName : ProjectNames)
 	{
-		const FString AssemblyPath = FPaths::Combine(AbsoluteFolderPath, ProjectName + TEXT(".dll"));
-		AssemblyPaths.Add(AssemblyPath);
+	    bool bFound = false;
+	    for (const FString& AbsoluteFolderPath : AbsoluteFolderPaths)
+	    {
+            if (const FString AssemblyPath = FPaths::Combine(AbsoluteFolderPath, ProjectName + TEXT(".dll"));
+                FPaths::FileExists(AssemblyPath))
+	        {
+	            AssemblyPaths.Add(AssemblyPath);
+	            bFound = true;
+	            break;
+	        }
+	    }
+
+	    if (!bFound)
+	    {
+	        UE_LOG(LogUnrealSharpProcHelper, Error, TEXT("Failed to find assembly for project %s"), *ProjectName);
+	        FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(FString::Printf(TEXT("Failed to find assembly for project %s"), *ProjectName)));
+	    }
 	}
 }
 
@@ -260,7 +291,7 @@ void FCSProcHelper::GetAllProjectPaths(TArray<FString>& ProjectPaths, bool bIncl
 
 	for (int32 i = ProjectPaths.Num() - 1; i >= 0; i--)
 	{
-		if (IsProjectReloadable(ProjectPaths[i]) && (bIncludeProjectGlue || !ProjectPaths[i].EndsWith("ProjectGlue.csproj")))
+		if (IsProjectReloadable(ProjectPaths[i]) && (bIncludeProjectGlue || (!ProjectPaths[i].EndsWith("ProjectGlue.csproj") && !ProjectPaths[i].EndsWith("PluginGlue.csproj"))))
 		{
 			continue;
 		}
