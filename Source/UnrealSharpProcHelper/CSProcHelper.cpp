@@ -245,6 +245,19 @@ void FCSProcHelper::GetAllProjectPaths(TArray<FString>& ProjectPaths, bool bIncl
 		false,
 		false);
 
+    TArray<FString> PluginFilePaths;
+    IPluginManager::Get().FindPluginsUnderDirectory(GetPluginsDirectory(), PluginFilePaths);
+    for (const FString& PluginFilePath : PluginFilePaths)
+    {
+        FString ScriptDirectory = FPaths::GetPath(PluginFilePath) / "Script";
+        IFileManager::Get().FindFilesRecursive(ProjectPaths,
+            *ScriptDirectory,
+            TEXT("*.csproj"),
+            true,
+            false,
+            false);
+    }
+
 	for (int32 i = ProjectPaths.Num() - 1; i >= 0; i--)
 	{
 		if (IsProjectReloadable(ProjectPaths[i]) && (bIncludeProjectGlue || !ProjectPaths[i].EndsWith("ProjectGlue.csproj")))
@@ -359,13 +372,19 @@ FString FCSProcHelper::GetGeneratedClassesDirectory()
 	return FPaths::Combine(GetUnrealSharpDirectory(), "UnrealSharp", "Generated");
 }
 
-FString& FCSProcHelper::GetScriptFolderDirectory()
+const FString& FCSProcHelper::GetScriptFolderDirectory()
 {
 	static FString ScriptFolderDirectory = FPaths::ProjectDir() / "Script";
 	return ScriptFolderDirectory;
 }
 
-FString& FCSProcHelper::GetProjectGlueFolderPath()
+const FString& FCSProcHelper::GetPluginsDirectory()
+{
+    static FString PluginsDirectory = FPaths::ProjectDir() / "Plugins";
+    return PluginsDirectory;
+}
+
+const FString& FCSProcHelper::GetProjectGlueFolderPath()
 {
 	static FString ProjectGlueFolderPath = GetScriptFolderDirectory() / "ProjectGlue";
 	return ProjectGlueFolderPath;
