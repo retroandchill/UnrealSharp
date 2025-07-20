@@ -246,7 +246,7 @@ public static class Program
         return !doc.Descendants()
             .Where(element => element.Name.LocalName == "PropertyGroup")
             .SelectMany(element => element.Elements())
-            .Any(element => element.Name.LocalName == "IsRoslynComponent" &&
+            .Any(element => element.Name.LocalName == "ExcludeFromWeaver" &&
                             element.Value.Equals("true", StringComparison.OrdinalIgnoreCase));
     }
 }
