@@ -109,6 +109,11 @@ public static class Program
         return Path.Combine(BuildToolOptions.ProjectDirectory, "Script");
     }
 
+    public static string GetPluginsFolder()
+    {
+        return Path.Combine(BuildToolOptions.ProjectDirectory, "Plugins");
+    }
+
     public static string GetProjectDirectory()
     {
         return BuildToolOptions.ProjectDirectory;
