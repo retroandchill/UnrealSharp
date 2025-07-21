@@ -13,6 +13,7 @@ end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 brace_style=next_line
+resharper_continuous_indent_multiplier = 1
 
 # python
 [*.{ini,py,py.tpl,rst}]
