@@ -24,6 +24,8 @@ public static class MethodUtilities
             CallingConvention = method.CallingConvention,
             Body = method.Body
         };
+        
+        newMethod.IsAbstract = method.IsAbstract;
 
         if (copyMetadataToken)
         {

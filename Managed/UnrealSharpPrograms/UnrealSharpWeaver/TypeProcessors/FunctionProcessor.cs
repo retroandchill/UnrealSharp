@@ -101,7 +101,7 @@ public static class FunctionProcessor
     public static MethodDefinition MakeImplementationMethod(FunctionMetaData func)
     {
         MethodDefinition copiedMethod = Utilities.MethodUtilities.CopyMethod(func.MethodDef.Name + "_Implementation", func.MethodDef);
-        if (copiedMethod.IsVirtual)
+        if (copiedMethod is { IsAbstract: false, IsVirtual: true })
         {
             // Find the call to the original function and replace it with a call to the implementation.
             foreach (var instruction in copiedMethod.Body.Instructions)
@@ -280,7 +280,7 @@ public static class FunctionProcessor
     
     public static void RewriteMethodAsUFunctionInvoke(TypeDefinition type, FunctionMetaData func, FieldDefinition? paramsSizeField, FunctionParamRewriteInfo[] paramRewriteInfos, bool forceOverwriteBody = false)
     {
-        if (!forceOverwriteBody && func.MethodDef.Body != null)
+        if (!forceOverwriteBody && (func.MethodDef.Body != null || func.MethodDef.IsAbstract))
         {
             MakeManagedMethodInvoker(type, func, MakeImplementationMethod(func), paramRewriteInfos);
         }
@@ -299,6 +299,7 @@ public static class FunctionProcessor
         FunctionParamRewriteInfo[] paramRewriteInfos)
     {
         // Remove the original method body. We'll replace it with a call to the native function.
+        methodDef.IsAbstract = false;
         methodDef.Body = new MethodBody(methodDef);
         
         if (metadata.FunctionPointerField == null)
