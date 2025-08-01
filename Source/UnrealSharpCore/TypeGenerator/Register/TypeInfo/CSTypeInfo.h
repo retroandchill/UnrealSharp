@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "TypeGenerator/Register/CSMetaDataUtils.h"
 
 struct FCSAssembly;
 
