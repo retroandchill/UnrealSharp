@@ -180,4 +180,9 @@ public static class AnalyzerStatics
         return type is NullableTypeSyntax ?
             typeInfo?.WithNullableAnnotation(NullableAnnotation.Annotated).ToString() : typeInfo?.ToString();
     }
+
+    public static string GetNameWithoutPrefix(this ITypeSymbol typeSymbol)
+    {
+        return typeSymbol.Name[1..];
+    }
 }
