@@ -118,6 +118,11 @@ struct FSharedGCHandle
         
         return Handle->Handle;
     }
+
+    int32 GetRefCount() const
+    {
+        return Handle.GetSharedReferenceCount();
+    }
     
 private:
     TSharedPtr<FScopedGCHandle> Handle;
