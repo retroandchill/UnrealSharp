@@ -111,10 +111,6 @@
             {
                 "Name": "FKey",
                 "HasDestructor": false
-            },
-            {
-                "Name": "FUIActionBindingHandle",
-                "HasDestructor": true
             }
         ]
     }
