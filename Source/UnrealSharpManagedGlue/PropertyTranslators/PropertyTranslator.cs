@@ -253,7 +253,7 @@ public abstract class PropertyTranslator
             builder.BeginUnsafeBlock();
             builder.AppendStackAllocProperty($"{property.SourceName}_Size", property.GetNativePropertyName());
             builder.AppendLine($"FPropertyExporter.CallGetValue_InContainer({property.GetNativePropertyName()}, NativeObject, paramsBuffer);");
-            ExportFromNative(builder, property, property.SourceName, $"{GetManagedType(property)} newValue =", "paramsBuffer", "0", false, false);
+            ExportFromNative(builder, property, property.SourceName, $"{GetManagedType(property)} newValue =", "paramsBuffer", "0", true, false);
             builder.AppendLine("return newValue;");
             builder.EndUnsafeBlock();
         }
@@ -274,6 +274,7 @@ public abstract class PropertyTranslator
             builder.AppendStackAllocProperty($"{property.SourceName}_Size", property.GetNativePropertyName());
             ExportToNative(builder, property, property.SourceName, "paramsBuffer", "0", "value");
             builder.AppendLine($"FPropertyExporter.CallSetValue_InContainer({property.GetNativePropertyName()}, NativeObject, paramsBuffer);"); 
+            ExportCleanupMarshallingBuffer(builder, property, property.SourceName);
             builder.EndUnsafeBlock();
         }
         
