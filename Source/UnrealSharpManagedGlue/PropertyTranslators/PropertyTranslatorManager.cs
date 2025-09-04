@@ -127,7 +127,7 @@ public static class PropertyTranslatorManager
 
     public static void AddTranslationManifest(TypeTranslationManifest manifest)
     {
-        foreach (var skippedStruct in manifest.Structs.SkippedTypes)
+        foreach (var skippedStruct in manifest.Structs.CustomTypes)
         {
             SpecialTypeInfo.Structs.SkippedTypes.Add(skippedStruct);
         }
