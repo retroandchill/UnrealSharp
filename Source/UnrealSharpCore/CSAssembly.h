@@ -108,6 +108,19 @@ public:
 			return Cast<T>(TypeInfo->StartBuildingManagedType());
 		}
 
+	    if constexpr (std::same_as<T, UEnum>)
+	    {
+	        if (FString TypeName = FieldName.GetName(); TypeName.StartsWith(TEXT("E")))
+	        {
+	            TypeName.RemoveFromStart(TEXT("E"));
+	            FCSFieldName AlternateName(FName(TypeName), FieldName.GetNamespace().GetFName());
+                if (const TSharedPtr<FCSManagedTypeInfo> AlternateTypeInfo = AllTypes.FindRef(AlternateName); AlternateTypeInfo.IsValid())
+	            {
+	                return Cast<T>(AlternateTypeInfo->StartBuildingManagedType());
+	            }
+	        }
+	    }
+
 		return TryFindField<T>(FieldName);
 	}
 
