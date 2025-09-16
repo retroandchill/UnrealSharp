@@ -129,7 +129,7 @@ public static class PropertyUtilities
     
     public static bool IsReadWrite(this UhtProperty property)
     {
-        return !property.IsReadOnly() && (property.PropertyFlags.HasAnyFlags(EPropertyFlags.BlueprintVisible | EPropertyFlags.BlueprintAssignable) || property.HasAnySetter());
+        return !property.IsReadOnly() && (property.PropertyFlags.HasAnyFlags(EPropertyFlags.BlueprintVisible | EPropertyFlags.BlueprintAssignable | EPropertyFlags.Edit) || property.HasAnySetter());
     }
     
     public static bool IsReadOnly(this UhtProperty property)
