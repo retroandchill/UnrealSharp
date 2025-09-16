@@ -40,22 +40,22 @@ public static class BuildPropsEmitter
             
         XmlElement propertyGroup = csprojDocument.FindOrMakeGeneratedLabeledPropertyGroup(projectRoot, Properties);
         EnsureSolutionDirFallback(csprojDocument, propertyGroup);
-        AppendProperties(csprojDocument, propertyGroup, solutionDir);
+        AppendProperties(csprojDocument, propertyGroup, directory, solutionDir);
         AppendConstantDefines(csprojDocument, propertyGroup);
 
         XmlElement refsGroup = csprojDocument.FindOrMakeGeneratedLabeledItemGroup(projectRoot, ReferencesLabel);
-        string binariesMsbuildPath = GetRelativePathToBinaries(directory, solutionDir);
+        string binariesMsbuildPath = GetRelativePathToBinaries();
         csprojDocument.AppendReference(refsGroup, "UnrealSharp", binariesMsbuildPath);
         csprojDocument.AppendReference(refsGroup, "UnrealSharp.Core", binariesMsbuildPath);
         csprojDocument.AppendReference(refsGroup, "UnrealSharp.Log", binariesMsbuildPath);
 
         XmlElement analyzersGroup = csprojDocument.FindOrMakeGeneratedLabeledItemGroup(projectRoot, AnalyzersLabelUser);
         analyzersGroup.SetAttribute("Condition", "!$(MSBuildProjectName.EndsWith('.Glue'))");
-        AppendSourceGeneratorReference(csprojDocument, analyzersGroup, directory, solutionDir, "UnrealSharp.GlueGenerator.dll");
-        AppendSourceGeneratorReference(csprojDocument, analyzersGroup, directory, solutionDir, "UnrealSharp.Analyzers.dll");
+        AppendSourceGeneratorReference(csprojDocument, analyzersGroup, "UnrealSharp.GlueGenerator.dll");
+        AppendSourceGeneratorReference(csprojDocument, analyzersGroup, "UnrealSharp.Analyzers.dll");
         
         XmlElement globalAnalyzersGroup = csprojDocument.FindOrMakeGeneratedLabeledItemGroup(projectRoot, AnalyzerLabelGlobal);
-        AppendSourceGeneratorReference(csprojDocument, globalAnalyzersGroup, directory, solutionDir, "UnrealSharp.SourceGenerators.dll");
+        AppendSourceGeneratorReference(csprojDocument, globalAnalyzersGroup, "UnrealSharp.SourceGenerators.dll");
 
         csprojDocument.Save(generatedBuildPropsPath);
     }
@@ -74,8 +74,9 @@ public static class BuildPropsEmitter
         propertyGroup.AppendChild(fallback);
     }
 
-    static void AppendProperties(XmlDocument doc, XmlElement propertyGroup, string solutionDir)
+    static void AppendProperties(XmlDocument doc, XmlElement propertyGroup, string projectDir, string solutionDir)
     {
+        AddProperty("UnrealSharpDir", GetRelativePathToPlugin(projectDir, solutionDir), doc, propertyGroup);
         AddProperty("AllowUnsafeBlocks", "true", doc, propertyGroup);
         AddProperty("EnableDynamicLoading", "true", doc, propertyGroup);
         AddProperty("LangVersion", "latest", doc, propertyGroup);
@@ -108,17 +109,21 @@ public static class BuildPropsEmitter
         AddConstDefine("$(DefineConstants);$(DefineAdditionalConstants)", doc, propertiesGroup, "'$(DefineAdditionalConstants)' != ''");
     }
 
-    static string GetRelativePathToBinaries(string projectRoot, string solutionDir)
+    static string GetRelativePathToPlugin(string projectRoot, string solutionDir)
     {
         string pluginPath = Path.Combine(projectRoot, Program.BuildToolOptions.PluginDirectory);
-        string binariesPath = Path.Combine(pluginPath, "Binaries", "Managed");
-        string rel = GetRelativePath(solutionDir, binariesPath);
+        string rel = GetRelativePath(solutionDir, pluginPath);
         return JoinMsbuildProperty(SolutionDirProperty, rel);
     }
 
-    static XmlElement AppendSourceGeneratorReference(XmlDocument doc, XmlElement itemGroup, string projectRoot, string solutionDir, string generatorName)
+    static string GetRelativePathToBinaries()
     {
-        string relativePath = GetRelativePathToBinaries(projectRoot, solutionDir);
+        return JoinMsbuildProperty("$(UnrealSharpDir)", Path.Combine("Binaries", "Managed"));
+    }
+
+    static XmlElement AppendSourceGeneratorReference(XmlDocument doc, XmlElement itemGroup, string generatorName)
+    {
+        string relativePath = GetRelativePathToBinaries();
         relativePath = Path.Combine(relativePath, Program.GetNetStandardVersion(), generatorName);
         XmlElement analyzer = doc.AppendAnalyzer(itemGroup, relativePath);
         analyzer.SetAttribute("Private", "false");
