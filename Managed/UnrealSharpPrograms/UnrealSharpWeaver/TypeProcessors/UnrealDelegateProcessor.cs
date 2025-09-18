@@ -162,14 +162,24 @@ public static class UnrealDelegateProcessor
 
             invokerMethodProcessor.Emit(OpCodes.Ldarg_0);
             invokerMethodProcessor.Emit(OpCodes.Ldloc, loadArguments);
+            
+            invokerMethodProcessor.Emit(OpCodes.Callvirt, declaredType);
+            
+            FunctionProcessor.MarshalOutParametersAndReturnValue(invokerMethodProcessor,
+                delegateType,
+                invokerMethodDefinition,
+                functionMetaData,
+                functionMetaData.RewriteInfo.FunctionParams, 
+                invokerMethodProcessor.Create(OpCodes.Ldloc, loadArguments));
         }
         else
         {
             invokerMethodProcessor.Emit(OpCodes.Ldarg_0);
             invokerMethodProcessor.Emit(OpCodes.Ldsfld, WeaverImporter.Instance.IntPtrZero);
+            invokerMethodProcessor.Emit(OpCodes.Callvirt, declaredType);
         }
+
         
-        invokerMethodProcessor.Emit(OpCodes.Callvirt, declaredType);
         invokerMethodDefinition.FinalizeMethod();
     }
 

@@ -362,6 +362,39 @@ public static class FunctionProcessor
             processor.Append(instruction);
         }
         
+        MarshalOutParametersAndReturnValue(processor, type, methodDef, metadata, paramRewriteInfos, loadArgumentBuffer);
+
+        if (staticNativeFunction)
+        {
+            return;
+        }
+        
+        Instruction branchTarget = processor.Body.Instructions[0];
+        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Ldarg_0));
+        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Ldfld, metadata.FunctionPointerField));
+        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Ldsfld, WeaverImporter.Instance.IntPtrZero));
+        
+        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Call, WeaverImporter.Instance.IntPtrEqualsOperator));
+
+        Instruction branchPosition = processor.Create(OpCodes.Ldarg_0);
+
+        processor.InsertBefore(branchTarget, branchPosition);
+        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Ldarg_0));
+        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Call, WeaverImporter.Instance.NativeObjectGetter));
+        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Ldstr, methodDef.Name));
+        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Call, WeaverImporter.Instance.GetNativeFunctionFromInstanceAndNameMethod));
+        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Stfld, metadata.FunctionPointerField));
+        processor.InsertBefore(branchPosition, processor.Create(OpCodes.Brfalse, branchTarget));
+        
+        methodDef.OptimizeMethod();
+    }
+
+    public static void MarshalOutParametersAndReturnValue(ILProcessor processor, TypeDefinition type,
+                                                          MethodDefinition methodDef,
+                                                          FunctionMetaData metadata,
+                                                          FunctionParamRewriteInfo[] paramRewriteInfos,
+                                                          Instruction? loadArgumentBuffer)
+    {
         // Marshal out params back from the native parameter buffer.
         if (metadata.FunctionFlags.HasFlag(EFunctionFlags.HasOutParms))
         {
@@ -393,30 +426,6 @@ public static class FunctionProcessor
         }
 
         processor.Emit(OpCodes.Ret);
-        
-        if (staticNativeFunction)
-        {
-            return;
-        }
-        
-        Instruction branchTarget = processor.Body.Instructions[0];
-        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Ldarg_0));
-        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Ldfld, metadata.FunctionPointerField));
-        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Ldsfld, WeaverImporter.Instance.IntPtrZero));
-        
-        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Call, WeaverImporter.Instance.IntPtrEqualsOperator));
-
-        Instruction branchPosition = processor.Create(OpCodes.Ldarg_0);
-
-        processor.InsertBefore(branchTarget, branchPosition);
-        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Ldarg_0));
-        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Call, WeaverImporter.Instance.NativeObjectGetter));
-        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Ldstr, methodDef.Name));
-        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Call, WeaverImporter.Instance.GetNativeFunctionFromInstanceAndNameMethod));
-        processor.InsertBefore(branchTarget, processor.Create(OpCodes.Stfld, metadata.FunctionPointerField));
-        processor.InsertBefore(branchPosition, processor.Create(OpCodes.Brfalse, branchTarget));
-        
-        methodDef.OptimizeMethod();
     }
 
     public static MethodDefinition CreateMethod(TypeDefinition declaringType, string name, MethodAttributes attributes, TypeReference? returnType = null, TypeReference[]? parameters = null)

@@ -25,20 +25,26 @@ public abstract class DelegateBuilder
             return;
         }
         
+        var returnType = delegateSymbol.DelegateInvokeMethod.ReturnsVoid ? "void" :delegateSymbol.DelegateInvokeMethod.ReturnType.ToDisplayString();
+        
         if (delegateSymbol.DelegateInvokeMethod.Parameters.IsEmpty)
         {
-            stringBuilder.AppendLine($"    protected void Invoker()");
+            stringBuilder.AppendLine($"    protected {returnType} Invoker()");
         }
         else
         {
-            stringBuilder.Append($"    protected void Invoker(");
+            stringBuilder.Append($"    protected {returnType} Invoker(");
             stringBuilder.Append(string.Join(", ", delegateSymbol.DelegateInvokeMethod.Parameters.Select(x => $"{DelegateWrapperGenerator.GetRefKindKeyword(x)}{x.Type} {x.Name}")));
             stringBuilder.Append(")");
             stringBuilder.AppendLine();
         }
         
         stringBuilder.AppendLine("    {");
-        stringBuilder.AppendLine("       ProcessDelegate(IntPtr.Zero);");
+        stringBuilder.AppendLine("        ProcessDelegate(IntPtr.Zero);");
+        if (!delegateSymbol.DelegateInvokeMethod.ReturnsVoid)
+        {
+            stringBuilder.AppendLine("        return default!;");
+        }
         stringBuilder.AppendLine("    }");
         stringBuilder.AppendLine();
     }

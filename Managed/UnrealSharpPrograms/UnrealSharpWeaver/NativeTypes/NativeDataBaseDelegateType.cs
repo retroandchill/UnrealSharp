@@ -36,7 +36,7 @@ public abstract class NativeDataBaseDelegateType : NativeDataSimpleType
                 continue;
             }
             
-            if (!method.ReturnsVoid())
+            if (propertyType is PropertyType.MulticastInlineDelegate or PropertyType.MulticastSparseDelegate && !method.ReturnsVoid())
             {
                 throw new Exception($"{delegateType.FullName} is exposed to Unreal Engine, and must have a void return type.");
             }
