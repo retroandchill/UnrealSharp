@@ -72,7 +72,7 @@ public static class PluginLoader
         return null;
     }
 
-    public static bool UnloadPlugin(string assemblyPath)
+    public static bool UnloadPlugin(string assemblyPath, bool waitForUnload = true)
     {
         string assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
         WeakReference? assemblyLoadContext = RemovePlugin(assemblyName);
@@ -82,10 +82,16 @@ public static class PluginLoader
             LogUnrealSharpPlugins.Log($"Plugin {assemblyName} is not loaded or already unloaded.");
             return true;
         }
+
+        if (!waitForUnload)
+        {
+            LogUnrealSharpPlugins.Log($"Unloading plugin {assemblyName}...");
+            return true;
+        }
         
         try
         {
-            LogUnrealSharpPlugins.Log($"Unloading plugin {assemblyName}...");
+            LogUnrealSharpPlugins.Log($"Wait for plugin {assemblyName} to unload...");
 
             int startTimeMs = Environment.TickCount;
             bool takingTooLong = false;
