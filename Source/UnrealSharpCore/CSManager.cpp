@@ -327,7 +327,7 @@ void UCSManager::NotifyUObjectDeleted(const UObjectBase* Object, int32 Index)
 	}
 
 	TSharedPtr<const FGCHandle> AssemblyHandle = Assembly->GetManagedAssemblyHandle();
-	Handle->Dispose(AssemblyHandle->GetHandle());
+    Handle->Dispose(AssemblyHandle.IsValid() ? AssemblyHandle->GetHandle() : FGCHandleIntPtr());
 
     TMap<uint32, TSharedPtr<FGCHandle>>* FoundHandles = ManagedInterfaceWrappers.FindByHash(Index, Index);
 	if (FoundHandles == nullptr)

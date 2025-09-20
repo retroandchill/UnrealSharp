@@ -535,6 +535,11 @@ public static class TypeDefinitionUtilities
                         {
                             return new NativeDataOptionalType(typeRef, genericArguments[0], arrayDim);
                         }
+                        
+                        if (genericTypeName.Contains("Nullable`1"))
+                        {
+                            return new NativeDataNullableType(typeRef, genericArguments[0], arrayDim);
+                        }
                     }
                 }
 
