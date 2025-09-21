@@ -87,13 +87,8 @@ public static class ConstructorBuilder
     public static void InitializeFields(MethodDefinition staticConstructor, List<PropertyMetaData> fields, Instruction loadNativeClassField)
     {
         ILProcessor processor = staticConstructor.Body.GetILProcessor();
-        foreach (var property in fields)
+        foreach (var property in fields.Where(property => property is not { HasCustomAccessors: true, GeneratedAccessorProperty: null }))
         {
-            if (property.HasCustomAccessors) 
-            {
-                continue;
-            }
-            
             Instruction loadNativeProperty;
             Instruction setNativeProperty;
             if (property.NativePropertyField == null)

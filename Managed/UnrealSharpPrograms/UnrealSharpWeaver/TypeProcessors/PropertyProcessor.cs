@@ -18,8 +18,11 @@ public static class PropertyProcessor
 
         foreach (PropertyMetaData prop in properties)
         {
-            if (prop.HasCustomAccessors)
+            string backingFieldName = $"<{prop.Name}>k__BackingField";
+            var backingField = type.Fields.FirstOrDefault(f => f.Name == backingFieldName);
+            if (prop.HasCustomAccessors && backingField is null)
             {
+                // If we have a compiler generated field, then we want to weave that into the property accessor
                 continue;
             }
             
@@ -45,13 +48,37 @@ public static class PropertyProcessor
             
             if (prop.MemberRef.Resolve() is PropertyDefinition propertyRef)
             {
-                // Standard property handling
-                prop.PropertyDataType.WriteGetter(type, propertyRef.GetMethod, loadBuffer, nativePropertyField);
-                if (propertyRef.SetMethod is not null) {
-                  prop.PropertyDataType.WriteSetter(type, propertyRef.SetMethod, loadBuffer, nativePropertyField);
+                if (prop.HasCustomAccessors)
+                {
+                    var backingProperty = new PropertyDefinition(prop.Name + "_NativeBackingProperty", PropertyAttributes.None, propertyRef.PropertyType);
+                    type.Properties.Add(backingProperty);
+                    
+                    var backingPropertyGetter = new MethodDefinition($"get_{backingProperty.Name}", MethodAttributes.Private, propertyRef.PropertyType);
+                    type.Methods.Add(backingPropertyGetter);
+                    backingProperty.GetMethod = backingPropertyGetter;
+                    
+                    prop.PropertyDataType.WriteGetter(type, backingProperty.GetMethod, loadBuffer, nativePropertyField);
+                    if (propertyRef.SetMethod is not null)
+                    {
+                        var backingPropertySetter = new MethodDefinition($"set_{backingProperty.Name}", MethodAttributes.Private, WeaverImporter.Instance.VoidTypeRef);
+                        backingPropertySetter.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, propertyRef.PropertyType));
+                        type.Methods.Add(backingPropertySetter);
+                        backingProperty.SetMethod = backingPropertySetter;
+                        prop.PropertyDataType.WriteSetter(type, backingProperty.SetMethod, loadBuffer, nativePropertyField);
+                    }
+                    prop.GeneratedAccessorProperty = backingProperty;
                 }
-                
-                string backingFieldName = RemovePropertyBackingField(type, prop);
+                else
+                {
+                    // Standard property handling
+                    prop.PropertyDataType.WriteGetter(type, propertyRef.GetMethod, loadBuffer, nativePropertyField);
+                    if (propertyRef.SetMethod is not null)
+                    {
+                        prop.PropertyDataType.WriteSetter(type, propertyRef.SetMethod, loadBuffer, nativePropertyField);
+                    }
+                }
+
+                RemovePropertyBackingField(type, prop, backingFieldName);
                 removedBackingFields.Add(backingFieldName, (prop, propertyRef, offsetField, nativePropertyField));
             }
             
@@ -205,12 +232,44 @@ public static class PropertyProcessor
                     });
             }
         }
+
+        foreach (var (backingField, data) in strippedFields)
+        {
+            var (prop, propertyDef, _, _) = data;
+            if (!prop.HasCustomAccessors || prop.GeneratedAccessorProperty is null) continue;
+            
+            var accessors = new[] { propertyDef.GetMethod, propertyDef.SetMethod }.Where(m => m is not null);
+    
+            foreach (var accessor in accessors)
+            {
+                if (!accessor!.HasBody) continue;
+
+                var instructions = accessor.Body.Instructions;
+                foreach (var instruction in instructions.Where(instruction => instruction.OpCode == OpCodes.Ldfld || instruction.OpCode == OpCodes.Stfld))
+                {
+                    if (instruction.Operand is not FieldReference fieldRef || fieldRef.Name != backingField)
+                        continue;
+
+                    // Get the appropriate accessor method from the generated backing property
+                    var generatedAccessor = instruction.OpCode == OpCodes.Ldfld
+                        ? prop.GeneratedAccessorProperty.GetMethod
+                        : prop.GeneratedAccessorProperty.SetMethod;
+
+                    if (generatedAccessor == null)
+                        throw new InvalidOperationException($"Missing accessor method for property {prop.Name}");
+
+                    // Replace field access with property accessor call
+                    instruction.OpCode = generatedAccessor is { IsVirtual: true, IsReuseSlot: true }
+                        ? OpCodes.Callvirt
+                        : OpCodes.Call;
+                    instruction.Operand = generatedAccessor;
+                }
+            }
+        }
     }
 
-    private static string RemovePropertyBackingField(TypeDefinition type, PropertyMetaData prop)
+    private static void RemovePropertyBackingField(TypeDefinition type, PropertyMetaData prop, string backingFieldName)
     {
-        string backingFieldName = $"<{prop.Name}>k__BackingField";
-
         for (var i = 0; i < type.Fields.Count; i++)
         {
             if (type.Fields[i].Name != backingFieldName)
@@ -219,7 +278,7 @@ public static class PropertyProcessor
             }
             
             type.Fields.RemoveAt(i);
-            return backingFieldName;
+            return;
         }
         
         throw new InvalidDataException($"Property '{prop.Name}' does not have a backing field");
