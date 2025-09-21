@@ -111,7 +111,7 @@ public static class UnrealDelegateProcessor
                 "USingleDelegate");
             delegateMetaData.Add(newDelegate);
             
-            if (invokerMethod.Parameters.Count == 0)
+            if (invokerMethod.Parameters.Count == 0 && invokerMethod.ReturnsVoid())
             {
                 continue;
             }
@@ -134,7 +134,7 @@ public static class UnrealDelegateProcessor
         ILProcessor invokerMethodProcessor = invokerMethodDefinition.Body.GetILProcessor();
         invokerMethodProcessor.Body.Instructions.Clear();
 
-        if (functionMetaData.Parameters.Length > 0)
+        if (functionMetaData.Parameters.Length > 0 || !invokerMethodDefinition.ReturnsVoid())
         {
             functionMetaData.FunctionPointerField = delegateType.AddField("SignatureFunction", WeaverImporter.Instance.IntPtrType, FieldAttributes.Public | FieldAttributes.Static);
             List<Instruction> allCleanupInstructions = [];

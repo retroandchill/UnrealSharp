@@ -24,7 +24,7 @@ class NativeDataMulticastDelegate : NativeDataBaseDelegateType
     public override void WritePostInitialization(ILProcessor processor, PropertyMetaData propertyMetadata,
         Instruction loadNativePointer, Instruction setNativePointer)
     {
-        if (!Signature.HasParameters)
+        if (!Signature.HasParameters && Signature.ReturnsVoid())
         {
             return;
         }

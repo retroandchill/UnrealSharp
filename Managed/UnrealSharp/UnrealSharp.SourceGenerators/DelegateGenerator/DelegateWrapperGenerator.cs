@@ -182,9 +182,11 @@ public class DelegateWrapperGenerator : IIncrementalGenerator
 
         string delegateTypeString = delegateType == DelegateType.Multicast ? "TMulticastDelegate" : "TDelegate";
 
-        stringBuilder.AppendLine($"     public static void Invoke(this {delegateTypeString}<{delegateSymbol}> @delegate{(args.Any() ? $", {args}" : string.Empty)})");
+        string returnType = delegateSymbol.DelegateInvokeMethod.ReturnsVoid ? "void" : delegateSymbol.DelegateInvokeMethod.ReturnType.ToDisplayString();
+        string returnStatement = delegateSymbol.DelegateInvokeMethod.ReturnsVoid ? string.Empty : "return ";
+        stringBuilder.AppendLine($"     public static {returnType} Invoke(this {delegateTypeString}<{delegateSymbol}> @delegate{(args.Any() ? $", {args}" : string.Empty)})");
         stringBuilder.AppendLine("     {");
-        stringBuilder.AppendLine($"         @delegate.InnerDelegate.Invoke({parameters});");
+        stringBuilder.AppendLine($"         {returnStatement} @delegate.InnerDelegate.Invoke({parameters});");
         stringBuilder.AppendLine("     }");
         stringBuilder.AppendLine("}");
     }
