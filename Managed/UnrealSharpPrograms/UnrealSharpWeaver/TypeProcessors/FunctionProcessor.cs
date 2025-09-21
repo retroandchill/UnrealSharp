@@ -9,6 +9,8 @@ namespace UnrealSharpWeaver.TypeProcessors;
 
 public static class FunctionProcessor
 {
+    private static readonly Dictionary<string, Dictionary<string, MethodReference>> ImplementationReferences = new();
+    
     public static void PrepareFunctionForRewrite(FunctionMetaData function, TypeDefinition classDefinition, bool forceOverwriteBody = false)
     {
         FieldDefinition? paramsSizeField = null;
@@ -101,6 +103,13 @@ public static class FunctionProcessor
     public static MethodDefinition MakeImplementationMethod(FunctionMetaData func)
     {
         MethodDefinition copiedMethod = Utilities.MethodUtilities.CopyMethod(func.MethodDef.Name + "_Implementation", func.MethodDef);
+        if (!ImplementationReferences.TryGetValue(copiedMethod.DeclaringType.FullName, out var typeMethods))
+        {
+            typeMethods = new Dictionary<string, MethodReference>();
+            ImplementationReferences.Add(copiedMethod.DeclaringType.FullName, typeMethods);
+        }
+        typeMethods.Add(copiedMethod.Name, copiedMethod.ImportMethod());
+        
         if (copiedMethod.IsVirtual)
         {
             // Find the call to the original function and replace it with a call to the implementation.
@@ -124,7 +133,12 @@ public static class FunctionProcessor
                     continue;
                 }
 
-                MethodReference implementationMethod = copiedMethod.DeclaringType.BaseType.Resolve().FindMethod(copiedMethod.Name)!;
+                if (!ImplementationReferences.TryGetValue(copiedMethod.DeclaringType.BaseType.FullName,
+                        out var baseTypeMethods) || !baseTypeMethods.TryGetValue(copiedMethod.Name, out var implementationMethod))
+                {
+                    implementationMethod = copiedMethod.DeclaringType.BaseType.Resolve().FindMethod(copiedMethod.Name)!;
+                }
+
                 instruction.Operand = implementationMethod.ImportMethod();
             }
         }
