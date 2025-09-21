@@ -27,7 +27,7 @@ public:
 	void SetAssemblyPath(const FStringView InAssemblyPath);
 
 	UNREALSHARPCORE_API bool LoadAssembly(bool bIsCollectible = true);
-	UNREALSHARPCORE_API bool UnloadAssembly(bool bWaitForUnload = true);
+	UNREALSHARPCORE_API bool UnloadAssembly();
 	UNREALSHARPCORE_API bool IsValidAssembly() const { return ManagedAssemblyHandle.IsValid() && !ManagedAssemblyHandle->IsNull(); }
 
 	FName GetAssemblyName() const { return AssemblyName; }
