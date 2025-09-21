@@ -106,7 +106,7 @@ public static class FunctionProcessor
         if (!ImplementationReferences.TryGetValue(copiedMethod.DeclaringType.FullName, out var typeMethods))
         {
             typeMethods = new Dictionary<string, MethodReference>();
-            ImplementationReferences.Add(copiedMethod.DeclaringType.FullName, typeMethods);
+            ImplementationReferences[copiedMethod.DeclaringType.FullName] = typeMethods;
         }
         typeMethods.Add(copiedMethod.Name, copiedMethod.ImportMethod());
         
