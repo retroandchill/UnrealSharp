@@ -195,7 +195,7 @@ bool UCSAssembly::ProcessTypeMetadata()
 	return true;
 }
 
-bool UCSAssembly::UnloadAssembly()
+bool UCSAssembly::UnloadAssembly(bool bWaitForUnload)
 {
 	if (!IsValidAssembly())
 	{
@@ -217,11 +217,14 @@ bool UCSAssembly::UnloadAssembly()
 	AllocatedManagedHandles.Reset();
 
 	// Don't need the assembly handle anymore, we use the path to unload the assembly.
-	ManagedAssemblyHandle->Dispose(ManagedAssemblyHandle->GetHandle());
-	ManagedAssemblyHandle.Reset();
+    if (bWaitForUnload)
+    {
+        ManagedAssemblyHandle->Dispose(ManagedAssemblyHandle->GetHandle());
+        ManagedAssemblyHandle.Reset();
+    }
 
     UCSManager::Get().OnManagedAssemblyUnloadedEvent().Broadcast(AssemblyName);
-	return UCSManager::Get().GetManagedPluginsCallbacks().UnloadPlugin(*AssemblyPath);
+	return UCSManager::Get().GetManagedPluginsCallbacks().UnloadPlugin(*AssemblyPath, bWaitForUnload);
 }
 
 TSharedPtr<FGCHandle> UCSAssembly::TryFindTypeHandle(const FCSFieldName& FieldName)

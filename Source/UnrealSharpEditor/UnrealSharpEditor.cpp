@@ -224,18 +224,34 @@ void FUnrealSharpEditorModule::StartHotReload(bool bRebuild, bool bPromptPlayerW
 	// Good info: https://learn.microsoft.com/en-us/dotnet/standard/assembly/unloadability
 	// Note: An assembly is only referenced if any of its types are referenced in code.
 	// Otherwise optimized out, so ProjectGlue can be unloaded first if it's not used.
+
+    // Phase one: trigger an unload for all assemblies
+    UE_LOGFMT(LogUnrealSharpEditor, Display, "Initiating unload of assemblies...");
 	for (int32 i = ProjectsByLoadOrder.Num() - 1; i >= 0; --i)
 	{
 		const FString& ProjectName = ProjectsByLoadOrder[i];
 		UCSAssembly* Assembly = CSharpManager.FindAssembly(*ProjectName);
 
-		if (IsValid(Assembly) && !Assembly->UnloadAssembly())
-		{
-			UE_LOGFMT(LogUnrealSharpEditor, Error, "Failed to unload assembly: {0}", *ProjectName);
-			bUnloadFailed = true;
-			break;
-		}
+	    if (IsValid(Assembly))
+	    {
+	        Assembly->UnloadAssembly(false);
+	    }
 	}
+
+    // Phase two: run through again to see if the assemblies are actually unloaded
+    UE_LOGFMT(LogUnrealSharpEditor, Display, "Verifying that assemblies have unloaded...");
+    for (int32 i = ProjectsByLoadOrder.Num() - 1; i >= 0; --i)
+    {
+        const FString& ProjectName = ProjectsByLoadOrder[i];
+        UCSAssembly* Assembly = CSharpManager.FindAssembly(*ProjectName);
+
+        if (IsValid(Assembly) && !Assembly->UnloadAssembly())
+        {
+            UE_LOGFMT(LogUnrealSharpEditor, Error, "Failed to unload assembly: {0}", *ProjectName);
+            bUnloadFailed = true;
+            break;
+        }
+    }
 
 	if (bUnloadFailed)
 	{
