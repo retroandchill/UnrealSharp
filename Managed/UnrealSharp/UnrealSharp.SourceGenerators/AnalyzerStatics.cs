@@ -37,6 +37,7 @@ public static class AnalyzerStatics
     private const string ContainerNamespace = "System.Collections.Generic";
     private static readonly string[] ContainerInterfaces =
     {
+        "IEnumerable",
         "IList",
         "IReadOnlyList",
         "IDictionary",

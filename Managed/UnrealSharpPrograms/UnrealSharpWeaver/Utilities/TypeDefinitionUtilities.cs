@@ -491,7 +491,7 @@ public static class TypeDefinitionUtilities
                         TypeReference[] genericArguments = instanceType.GenericArguments.ToArray();
                         string? genericTypeName = instanceType.ElementType.Name;
                         
-                        if (genericTypeName.Contains("TArray`1") || genericTypeName.Contains("List`1"))
+                        if (genericTypeName.Contains("TArray`1") || genericTypeName.Contains("List`1") || genericTypeName.Contains("IEnumerable`1"))
                         {
                             return new NativeDataArrayType(typeRef, arrayDim, genericArguments[0]);
                         }
