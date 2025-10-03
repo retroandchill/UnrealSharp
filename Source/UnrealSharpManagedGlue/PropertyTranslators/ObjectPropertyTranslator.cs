@@ -33,7 +33,10 @@ public class ObjectPropertyTranslator : SimpleTypePropertyTranslator
 
     public override string GetManagedType(UhtProperty property)
     {
-        return GetManagedType(property, property.HasMetadata("Nullable"));   
+        return GetManagedType(property, 
+            property.HasMetadata("Nullable") 
+            || (property.Outer is UhtFunction function 
+                && function.ReturnProperty == property && function.HasMetadata("Nullable")));   
     }
 
     private static string GetManagedType(UhtProperty property, bool isNullable)
