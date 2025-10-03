@@ -34,7 +34,8 @@ public class ClassMetaData : TypeReferenceMetadata
         PopulateInterfaces();
         PopulateProperties();
         PopulateFunctions();
-        
+
+        AddDisplayName();
         AddConfigCategory();
         
         ParentClass = new TypeReferenceMetadata(type.BaseType.Resolve());
@@ -50,6 +51,16 @@ public class ClassMetaData : TypeReferenceMetadata
         if (type.IsChildOf(WeaverImporter.Instance.UActorComponentDefinition))
         {
             TryAddMetaData("BlueprintSpawnableComponent", true);
+        }
+    }
+
+    private void AddDisplayName()
+    {
+        CustomAttribute uClassAttribute = _classDefinition.GetUClass()!;
+        CustomAttributeArgument? configCategoryProperty = uClassAttribute.FindAttributeField("DisplayName");
+        if (configCategoryProperty != null)
+        {
+            TryAddMetaData("DisplayName", (string) configCategoryProperty.Value.Value);
         }
     }
 
