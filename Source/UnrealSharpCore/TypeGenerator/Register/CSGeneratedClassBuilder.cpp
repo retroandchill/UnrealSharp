@@ -79,6 +79,16 @@ void UCSGeneratedClassBuilder::CreateBlueprint(TSharedPtr<FCSClassMetaData> Type
 		Blueprint = NewObject<UCSBlueprint>(Package, *BlueprintName, RF_Public | RF_Standalone);
 		Blueprint->GeneratedClass = Field;
 		Blueprint->ParentClass = SuperClass;
+
+        if (FString* DisplayName = TypeMetaData->MetaData.Find(TEXT("DisplayName")); DisplayName != nullptr)
+	    {
+	        Blueprint->BlueprintDisplayName = *DisplayName;
+	    }
+
+	    if (FString* Tooltip = TypeMetaData->MetaData.Find(TEXT("Tooltip")); Tooltip != nullptr)
+	    {
+	        Blueprint->BlueprintDescription = *Tooltip;
+	    }
 		
 		Field->ClassGeneratedBy = Blueprint;
 	}
