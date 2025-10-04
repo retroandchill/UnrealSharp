@@ -541,34 +541,6 @@ UCSAssembly* UCSManager::FindOwningAssembly(UClass* Class)
     
     return FindOwningAssemblySlow(Class);
 }
-
-UCSAssembly * UCSManager::FindOwningAssembly(UScriptStruct* Struct)
-{
-    TRACE_CPUPROFILER_EVENT_SCOPE(UCSManager::FindOwningAssembly);
-	
-    if (const ICSManagedTypeInterface* ManagedType = Cast<ICSManagedTypeInterface>(Struct); ManagedType != nullptr)
-    {
-        // Fast access to the owning assembly for managed types.
-        return ManagedType->GetOwningAssembly();
-    }
-
-    if (const UUserDefinedStruct* UserStruct = Cast<UUserDefinedStruct>(Struct); UserStruct != nullptr)
-    {
-        // This is a Blueprint Struct and we can't use it
-        return nullptr;
-    }
-    
-    uint32 ClassID = Struct->GetUniqueID();
-    TObjectPtr<UCSAssembly> Assembly = NativeClassToAssemblyMap.FindOrAddByHash(ClassID, ClassID);
-
-	if (IsValid(Assembly))
-	{
-		return Assembly;
-	}
-    
-    return FindOwningAssemblySlow(Class);
-}
-
 UCSAssembly * UCSManager::FindOwningAssembly(UScriptStruct* Struct)
 {
     TRACE_CPUPROFILER_EVENT_SCOPE(UCSManager::FindOwningAssembly);
@@ -606,7 +578,7 @@ UCSAssembly* UCSManager::FindOwningAssembly(UEnum* Enum)
 		return ManagedType->GetOwningAssembly();
 	}
 
-	if (const UUserDefinedEnum* UserEnum = Cast<UUserDefinedStruct>(Enum); UserEnum != nullptr)
+	if (const UUserDefinedEnum* UserEnum = Cast<UUserDefinedEnum>(Enum); UserEnum != nullptr)
 	{
 		// This is a Blueprint Enum and we can't use it
 		return nullptr;
