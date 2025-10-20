@@ -34,6 +34,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnrealSharpManagedGlue.ubtp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnrealSharp.Editor", "Managed\UnrealSharp\UnrealSharp.Editor\UnrealSharp.Editor.csproj", "{48DD0F70-9A5E-484F-8F04-FCB49384E1EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnrealSharp.GlueGenerator", "Managed\UnrealSharp\UnrealSharp.GlueGenerator\UnrealSharp.GlueGenerator\UnrealSharp.GlueGenerator.csproj", "{98D4A492-C547-4CEF-BE3C-C284E0F53C14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnrealSharp.GlueGenerator.Tests", "Managed\UnrealSharp\UnrealSharp.GlueGenerator.Tests\UnrealSharp.GlueGenerator.Tests.csproj", "{D5640B44-1DFD-4181-AB01-8BF3FC06C88A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnrealSharp.Analyzers", "Managed\UnrealSharp\UnrealSharp.Analyzers\UnrealSharp.Analyzers.csproj", "{51BC8ECB-A8C4-4D7C-A191-6D183376C155}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +61,9 @@ Global
 		{B7341E56-6BD6-484E-83B2-3C57F2893CE4} = {1DA7A72C-8FA5-4059-83AB-31D1148DDB8F}
 		{E495FA66-9A5D-4015-BD3E-E4E8E10BF165} = {3E4761CE-C36A-4EF4-997C-386378A9BB02}
 		{48DD0F70-9A5E-484F-8F04-FCB49384E1EC} = {4E09386F-64C1-4B64-863D-67C199AF2B82}
+		{98D4A492-C547-4CEF-BE3C-C284E0F53C14} = {4E09386F-64C1-4B64-863D-67C199AF2B82}
+		{D5640B44-1DFD-4181-AB01-8BF3FC06C88A} = {4E09386F-64C1-4B64-863D-67C199AF2B82}
+		{51BC8ECB-A8C4-4D7C-A191-6D183376C155} = {4E09386F-64C1-4B64-863D-67C199AF2B82}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{889F6A84-6B1F-4690-A1D0-DF4ADDE2CC67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -109,5 +118,17 @@ Global
 		{48DD0F70-9A5E-484F-8F04-FCB49384E1EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48DD0F70-9A5E-484F-8F04-FCB49384E1EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48DD0F70-9A5E-484F-8F04-FCB49384E1EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98D4A492-C547-4CEF-BE3C-C284E0F53C14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98D4A492-C547-4CEF-BE3C-C284E0F53C14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98D4A492-C547-4CEF-BE3C-C284E0F53C14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98D4A492-C547-4CEF-BE3C-C284E0F53C14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5640B44-1DFD-4181-AB01-8BF3FC06C88A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5640B44-1DFD-4181-AB01-8BF3FC06C88A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5640B44-1DFD-4181-AB01-8BF3FC06C88A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5640B44-1DFD-4181-AB01-8BF3FC06C88A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51BC8ECB-A8C4-4D7C-A191-6D183376C155}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51BC8ECB-A8C4-4D7C-A191-6D183376C155}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51BC8ECB-A8C4-4D7C-A191-6D183376C155}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51BC8ECB-A8C4-4D7C-A191-6D183376C155}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
