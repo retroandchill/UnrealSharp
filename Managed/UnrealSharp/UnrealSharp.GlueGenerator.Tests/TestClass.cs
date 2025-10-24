@@ -170,6 +170,12 @@ public partial class UTestClass : AActor, ITestInterface
 
         return result;
     }
+    
+    [UFunction(FunctionFlags.BlueprintCallable)]
+    public Task<int> SlowAddWrapper(int lhs, int rhs, CancellationToken cancellationToken)
+    {
+        return SlowAdd(lhs, rhs, cancellationToken);
+    }
 }
 
 

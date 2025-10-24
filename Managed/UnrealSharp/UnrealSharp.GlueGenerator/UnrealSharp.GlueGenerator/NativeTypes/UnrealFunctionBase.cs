@@ -101,7 +101,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
         else
         {
             ISymbol returnValueSymbol;
-            if (typeSymbol is IMethodSymbol methodSymbol && methodSymbol.IsAsync)
+            if (typeSymbol is IMethodSymbol { ReturnType.Name: "Task" or "ValueTask" }) 
             {
                 INamedTypeSymbol taskSymbol = model.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1")!;
                 if (returnTypeSymbol.OriginalDefinition.Equals(taskSymbol, SymbolEqualityComparer.Default))
@@ -206,7 +206,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
         MethodDeclarationSyntax methodDeclaration = (MethodDeclarationSyntax) memberDeclaration;
 
         UnrealFunctionBase unrealFunction;
-        if (methodSymbol.IsAsync)
+        if (methodSymbol.ReturnType.Name is "Task" or "ValueTask")
         {
             unrealFunction = new UnrealAsyncFunction(ctx.SemanticModel, methodSymbol, methodDeclaration, outer!);
             unrealClass.AddAsyncFunction(unrealFunction);
