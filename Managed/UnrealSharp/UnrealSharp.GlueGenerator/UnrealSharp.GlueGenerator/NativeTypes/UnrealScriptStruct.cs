@@ -12,6 +12,7 @@ public record UnrealScriptStruct : UnrealStruct
     
     public UnrealScriptStruct(ISymbol typeSymbol, SyntaxNode syntax, UnrealType? outer = null) : base(typeSymbol, syntax, outer)
     {
+        IsRecord = syntax is RecordDeclarationSyntax;
     }
     
     [Inspect("UnrealSharp.Attributes.UStructAttribute", "UStructAttribute", "Global")]

@@ -28,6 +28,14 @@ public partial struct FTestStruct
     [UProperty] public FVector VectorProp { get; set; }
 }
 
+[UStruct]
+public partial struct FTestRecordStruct
+{
+    [UProperty] public int IntProp { get; set; }
+    [UProperty] public string StringProp { get; set; }
+    [UProperty] public FVector VectorProp { get; set; }
+}
+
 [UInterface]
 public interface ITestInterface
 {

@@ -61,7 +61,7 @@ public static class StringBuilderExtensions
         string typeKeyWord = typeKind switch
         {
             TypeKind.Class => "class",
-            TypeKind.Struct => "struct",
+            TypeKind.Struct => type.IsRecord ? "record struct" : "struct",
             TypeKind.Enum => "enum",
             TypeKind.Interface => "interface",
             _ => throw new Exception("Unsupported type kind passed to BeginType" + typeKind)

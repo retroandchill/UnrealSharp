@@ -21,6 +21,7 @@ public record UnrealType
 {
     public UnrealType? Outer;
     public bool HasOuter { get; }
+    public bool IsRecord { get; protected set; }
 
     public string SourceName = string.Empty;
     public virtual string EngineName => SourceName;
