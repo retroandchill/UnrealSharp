@@ -42,7 +42,10 @@ public record ContainerProperty : TemplateProperty
 
     protected override void ExportSetter(GeneratorStringBuilder builder)
     {
-        builder.AppendLine("set => throw new NotSupportedException();");
+        builder.AppendLine("set");
+        builder.OpenBrace();
+        ExportToNative(builder, SourceGenUtilities.NativeObject, SourceGenUtilities.ValueParam);
+        builder.CloseBrace();
     }
 
     protected virtual string GetFieldMarshaller() => throw new NotImplementedException();

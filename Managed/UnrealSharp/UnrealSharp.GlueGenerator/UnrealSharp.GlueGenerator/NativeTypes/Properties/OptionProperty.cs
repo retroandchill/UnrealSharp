@@ -12,14 +12,6 @@ public record OptionProperty : ContainerProperty
     {
 
     }
-
-    protected override void ExportSetter(GeneratorStringBuilder builder)
-    {
-        builder.AppendLine("set");
-        builder.OpenBrace();
-        ExportToNative(builder, SourceGenUtilities.NativeObject, SourceGenUtilities.ValueParam);
-        builder.CloseBrace();
-    }
     
     public override void ExportToNative(GeneratorStringBuilder builder, string buffer, string value)
     {
