@@ -130,6 +130,8 @@ public record UnrealProperty : UnrealType
     public int ArrayDim = 1;
 
     public readonly bool IsPartial = true;
+    public readonly bool HasGetter = true;
+    public readonly bool HasSetter = true;
     
     public bool IsBlittable = false;
     public RefKind RefKind;
@@ -169,6 +171,12 @@ public record UnrealProperty : UnrealType
         {
             Namespace = typeSymbol.ContainingNamespace.ToDisplayString();
             IsNullable = typeSymbol.NullableAnnotation == NullableAnnotation.Annotated;
+        }
+
+        if (memberSymbol is IPropertySymbol propertySymbol)
+        {
+            HasGetter = propertySymbol.GetMethod is not null;
+            HasSetter = propertySymbol.SetMethod is not null;
         }
     }
     
@@ -293,8 +301,17 @@ public record UnrealProperty : UnrealType
         string partialDeclaration = IsPartial ? "partial " : string.Empty;
         builder.AppendLine($"{Protection.AccessibilityToString()}{partialDeclaration}{ManagedType}{nullableSign} {SourceName}");
         builder.OpenBrace();
-        ExportGetter(builder);
-        ExportSetter(builder);
+
+        if (HasGetter)
+        {
+            ExportGetter(builder);
+        }
+
+        if (HasSetter)
+        {
+            ExportSetter(builder);
+        }
+
         builder.CloseBrace();
     }
 
