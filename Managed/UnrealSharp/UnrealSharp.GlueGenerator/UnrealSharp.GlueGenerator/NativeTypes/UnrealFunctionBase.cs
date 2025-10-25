@@ -317,6 +317,13 @@ public abstract record UnrealFunctionBase : UnrealStruct
         unrealFunction.AddMetaData("CallInEditor", value ? "true" : "false");
     }
     
+    [InspectArgument("DisplayName", UFunctionAttributeName)]
+    public static void DisplayNameSpecifier(UnrealType topScope, TypedConstant constant)
+    {
+        UnrealFunctionBase unrealFunction = (UnrealFunctionBase) topScope;
+        unrealFunction.AddMetaData("Category", (string) constant.Value!);
+    }
+    
     [InspectArgument("Category", UFunctionAttributeName)]
     public static void CategorySpecifier(UnrealType topScope, TypedConstant constant)
     {
@@ -357,8 +364,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
         
         foreach (UnrealProperty parameter in Properties)
         {
-            builder.AppendLine($"{parameter.ManagedType} {parameter.SourceName} ");
-            parameter.ExportFromNative(builder, SourceGenUtilities.Buffer, "= ");
+            parameter.ExportFromNative(builder, SourceGenUtilities.Buffer, $"{parameter.ManagedType} {parameter.SourceName} = ");
         }
         
         builder.AppendLine();

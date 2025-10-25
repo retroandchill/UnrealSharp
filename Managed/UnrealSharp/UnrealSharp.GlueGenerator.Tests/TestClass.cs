@@ -158,6 +158,12 @@ public partial class ATestClass : AActor, ITestInterface
     }
     
     [UFunction(FunctionFlags.BlueprintCallable)]
+    public void CallGenericFunction(IReadOnlyList<AActor> intParams)
+    {
+        float result = TestFunction(42, "Hello from C#");
+    }
+    
+    [UFunction(FunctionFlags.BlueprintCallable)]
     public void CallTestFunction(int intParam = 7, string strParam = "Hello from C#", ETestEnum test = ETestEnum.FirstValue)
     {
         float result = TestFunction(42, "Hello from C#");

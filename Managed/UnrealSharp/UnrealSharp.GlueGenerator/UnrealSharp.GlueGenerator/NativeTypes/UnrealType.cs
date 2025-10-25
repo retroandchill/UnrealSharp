@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using UnrealSharp.GlueGenerator.NativeTypes.Properties;
 
 namespace UnrealSharp.GlueGenerator.NativeTypes;
 
@@ -34,8 +35,21 @@ public record UnrealType
     
     public virtual int FieldTypeValue => throw new NotImplementedException();
     
-    public string BuilderNativePtr => HasOuter ? $"{Outer!.SourceName}_{SourceName}Ptr" : $"{SourceName}Ptr";
-    
+    public string BuilderNativePtr
+    {
+        get
+        {
+            if (!HasOuter) return $"{SourceName}Ptr";
+
+            if (Outer is UnrealProperty { Outer: not null } property)
+            {
+                return $"{property.Outer.SourceName}_{SourceName}Ptr";
+            }
+            
+            return $"{Outer!.SourceName}_{SourceName}Ptr";
+        }
+    }
+
     private readonly EquatableList<MetaData> _metaData = new(new List<MetaData>());
     
     public UnrealType(ISymbol? memberSymbol, SyntaxNode syntaxNode, UnrealType? outer = null)

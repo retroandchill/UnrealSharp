@@ -183,6 +183,13 @@ public record UnrealClass : UnrealClassBase
             unrealClass.ClassFlags |= EClassFlags.DefaultConfig;
         }
     }
+    
+    [InspectArgument("DisplayName", UClassAttributeName)]
+    public static void DisplayNameSpecifier(UnrealType topScope, TypedConstant constant)
+    {
+        UnrealClass unrealClass = (UnrealClass)topScope;
+        unrealClass.AddMetaData("DisplayName", (string)constant.Value!);
+    }
 
     [InspectArgument(["ConfigCategory", "config"], UClassAttributeName)]
     public static void ConfigCategorySpecifier(UnrealType topScope, TypedConstant constant)

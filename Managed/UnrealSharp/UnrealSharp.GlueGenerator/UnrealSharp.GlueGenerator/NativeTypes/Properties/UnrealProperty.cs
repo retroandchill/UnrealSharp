@@ -299,6 +299,13 @@ public record UnrealProperty : UnrealType
         }
     }
     
+    [InspectArgument("DisplayName", UPropertyAttributeName)]
+    public static void DisplayNameSpecifier(UnrealType topType, TypedConstant category)
+    {
+        UnrealProperty property = (UnrealProperty)topType;
+        property.AddMetaData("DisplayName", (string)category.Value!);
+    }
+    
     [InspectArgument("Category", UPropertyAttributeName)]
     public static void CategorySpecifier(UnrealType topType, TypedConstant category)
     {

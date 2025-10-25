@@ -15,16 +15,11 @@ public record UnrealScriptStruct : UnrealStruct
     
     public UnrealScriptStruct(ISymbol typeSymbol, SyntaxNode syntax, UnrealType? outer = null) : base(typeSymbol, syntax, outer)
     {
-        if (syntax is RecordDeclarationSyntax recordSyntax)
-        {
-            IsRecord = true;
+        IsRecord = syntax is RecordDeclarationSyntax;
 
-            if (recordSyntax.ParameterList is not null)
-            {
-                HasPrimaryConstructor = true;
-                PrimaryConstructorParameterCount = recordSyntax.ParameterList.Parameters.Count;
-            }
-        }
+        if (syntax is not TypeDeclarationSyntax { ParameterList: not null } typeSyntax) return;
+        HasPrimaryConstructor = true;
+        PrimaryConstructorParameterCount = typeSyntax.ParameterList.Parameters.Count;
 
     }
     
@@ -83,6 +78,7 @@ public record UnrealScriptStruct : UnrealStruct
         builder.CloseBrace();
         builder.AppendLine();
         
+        builder.AppendLine("[SetsRequiredMembers]");
         string thisInvocation = HasPrimaryConstructor ? " : this(" : string.Empty;
         builder.AppendLine($"public {SourceName}(IntPtr buffer){thisInvocation}");
         if (HasPrimaryConstructor)

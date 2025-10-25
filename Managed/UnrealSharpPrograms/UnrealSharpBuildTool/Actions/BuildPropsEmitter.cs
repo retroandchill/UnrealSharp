@@ -44,17 +44,19 @@ public static class BuildPropsEmitter
         AppendConstantDefines(csprojDocument, propertyGroup);
 
         XmlElement refsGroup = csprojDocument.FindOrMakeGeneratedLabeledItemGroup(projectRoot, ReferencesLabel);
+        refsGroup.SetAttribute("Condition", "'$(ExcludeFromWeaver)' != 'true'");
         string binariesMsbuildPath = GetRelativePathToBinaries();
         csprojDocument.AppendReference(refsGroup, "UnrealSharp", binariesMsbuildPath);
         csprojDocument.AppendReference(refsGroup, "UnrealSharp.Core", binariesMsbuildPath);
         csprojDocument.AppendReference(refsGroup, "UnrealSharp.Log", binariesMsbuildPath);
 
         XmlElement analyzersGroup = csprojDocument.FindOrMakeGeneratedLabeledItemGroup(projectRoot, AnalyzersLabelUser);
-        analyzersGroup.SetAttribute("Condition", "!$(MSBuildProjectName.EndsWith('.Glue'))");
+        analyzersGroup.SetAttribute("Condition", "!$(MSBuildProjectName.EndsWith('.Glue')) AND '$(ExcludeFromWeaver)' != 'true'");
         AppendSourceGeneratorReference(csprojDocument, analyzersGroup, "UnrealSharp.GlueGenerator.dll");
         AppendSourceGeneratorReference(csprojDocument, analyzersGroup, "UnrealSharp.Analyzers.dll");
         
         XmlElement globalAnalyzersGroup = csprojDocument.FindOrMakeGeneratedLabeledItemGroup(projectRoot, AnalyzerLabelGlobal);
+        globalAnalyzersGroup.SetAttribute("Condition", "'$(ExcludeFromWeaver)' != 'true'");
         AppendSourceGeneratorReference(csprojDocument, globalAnalyzersGroup, "UnrealSharp.SourceGenerators.dll");
 
         csprojDocument.Save(generatedBuildPropsPath);

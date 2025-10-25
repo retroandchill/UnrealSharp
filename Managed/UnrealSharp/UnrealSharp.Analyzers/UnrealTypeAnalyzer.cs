@@ -82,7 +82,7 @@ public class UnrealTypeAnalyzer : DiagnosticAnalyzer
 
             if (symbol.DeclaringSyntaxReferences.Any(t => t.GetSyntax() is StructDeclarationSyntax
                 {
-                    ParameterList: not null
+                    ParameterList.Parameters.Count: > 0
                 }))
             {
                 Diagnostic structDiagnostic = Diagnostic.Create(StructRule, symbol.Locations[0],symbol.TypeKind.ToString(), symbol.Name, prefix);

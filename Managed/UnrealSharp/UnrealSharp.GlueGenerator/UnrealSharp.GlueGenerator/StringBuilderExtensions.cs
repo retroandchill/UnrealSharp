@@ -37,6 +37,7 @@ public static class StringBuilderExtensions
         builder.AppendLine("using static UnrealSharp.Interop.UFunctionExporter;");
         
         builder.AppendLine("using System.ComponentModel;");
+        builder.AppendLine("using System.Diagnostics.CodeAnalysis;");
         builder.AppendLine("using UnrealSharp;");
         builder.AppendLine("using UnrealSharp.Core.Marshallers;");
         builder.AppendLine("using UnrealSharp.Core.Attributes;");

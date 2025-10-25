@@ -79,7 +79,7 @@ public record TemplateProperty : UnrealProperty
     {
         base.MakeProperty(builder, ownerPtr);
         
-        string templateArrayName = $"{SourceName}_TemplateArray";
+        string templateArrayName = HasOuter ? $"{Outer!.SourceName}_{SourceName}_TemplateArray" : $"{SourceName}_TemplateArray";
         builder.AppendLine($"IntPtr {templateArrayName} = InitTemplateProps({BuilderNativePtr}, {InnerTypes.Count});");
         
         for (int i = 0; i < InnerTypes.Count; i++)
