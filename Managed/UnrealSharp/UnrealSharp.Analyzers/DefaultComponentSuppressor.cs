@@ -8,14 +8,14 @@ using UnrealSharp.SourceGenerator.Utilities;
 namespace UnrealSharp.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class DefaultComponentSuppressor : DiagnosticSuppressor
+public class UPropertyReferenceTypeSuppressor : DiagnosticSuppressor
 {
-    public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => ImmutableArray.Create(DefaultComponentNullableRule);
+    public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => [DefaultComponentNullableRule];
     
     private static readonly SuppressionDescriptor DefaultComponentNullableRule = new(
-        "DefaultComponentNullableSuppressorId",
+        "NullableUPropertySuppressorId",
         "CS8618",
-        "Default component automatically instantiated."
+        "UProperties on UClasses are automatically instantiated."
     );
     
     public override void ReportSuppressions(SuppressionAnalysisContext context)
@@ -49,7 +49,7 @@ public class DefaultComponentSuppressor : DiagnosticSuppressor
         var symbol = semanticModel.GetDeclaredSymbol(propertyNode, cancellationToken);
         if (symbol is not IPropertySymbol propertySymbol) return false;
         
-        return AnalyzerStatics.TryGetAttribute(propertySymbol, AnalyzerStatics.UPropertyAttribute, out var propertyAttribute) && 
-               AnalyzerStatics.IsDefaultComponent(propertyAttribute);
+        return AnalyzerStatics.TryGetAttribute(propertySymbol, AnalyzerStatics.UPropertyAttribute, out _) && 
+               AnalyzerStatics.HasAttribute(propertySymbol.ContainingType, AnalyzerStatics.UClassAttribute);
     }
 }

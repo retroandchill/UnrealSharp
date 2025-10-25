@@ -70,6 +70,10 @@ public:
 
     UCSAssembly* FindOwningAssembly(UClass* Class);
 
+    UCSAssembly* FindOwningAssembly(UScriptStruct* Struct);
+
+    UCSAssembly* FindOwningAssembly(UEnum* Enum);
+
 	UFUNCTION(meta = (ScriptMethod))
     UCSAssembly* FindAssembly(FName AssemblyName) const
     {
@@ -158,6 +162,8 @@ private:
 
 	void OnModulesChanged(FName InModuleName, EModuleChangeReason InModuleChangeReason);
 	void TryInitializeDynamicSubsystems();
+
+    UCSAssembly* FindOwningAssemblySlow(UField* Field);
 
 	static UCSManager* Instance;
 
