@@ -37,14 +37,18 @@ public static class PropertyFactory
         ["TArray"] = (s, m, t, o) => new ArrayProperty(s, m, t, o),
         ["List"] = (s, m, t, o) => new ArrayProperty(s, m, t, o),
         ["IList"] = (s, m, t, o) => new ArrayProperty(s, m, t, o),
+        ["IReadOnlyList"] = (s, m, t, o) => new ArrayProperty(s, m, t, o),
         ["IEnumerable"] = (s, m, t, o) => new ArrayProperty(s, m, t, o),
         ["ICollection"] = (s, m, t, o) => new ArrayProperty(s, m, t, o),
+        ["IReadOnlyCollection"] = (s, m, t, o) => new ArrayProperty(s, m, t, o),
 
         ["TMap"] = (s, m, t, o) => new MapProperty(s, m, t, o),
         ["IDictionary"] = (s, m, t, o) => new MapProperty(s, m, t, o),
+        ["IReadOnlyDictionary"] = (s, m, t, o) => new MapProperty(s, m, t, o),
 
         ["TSet"] = (s, m, t, o) => new SetProperty(s, m, t, o),
-        ["ISet"] = (s, m, t, o) => new SetProperty(s, m, t, o)
+        ["ISet"] = (s, m, t, o) => new SetProperty(s, m, t, o),
+        ["IReadOnlySet"] = (s, m, t, o) => new SetProperty(s, m, t, o)
     };
 
     public static UnrealProperty CreateProperty(SemanticModel model, SyntaxNode syntax, UnrealType outer)
