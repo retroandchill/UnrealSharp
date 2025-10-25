@@ -3,11 +3,11 @@ using Microsoft.CodeAnalysis;
 
 namespace UnrealSharp.GlueGenerator.NativeTypes.Properties;
 
-public record OptionProperty : ContainerProperty
+public record OptionalProperty : ContainerProperty
 {
-    const string OptionMarshaller = "OptionMarshaller";
+    const string OptionalMarshaller = "OptionalMarshaller";
     
-    public OptionProperty(SyntaxNode syntaxNode, ISymbol memberSymbol, ITypeSymbol typeSymbol, UnrealType outer) 
+    public OptionalProperty(SyntaxNode syntaxNode, ISymbol memberSymbol, ITypeSymbol typeSymbol, UnrealType outer) 
         : base(syntaxNode, memberSymbol, typeSymbol, PropertyType.Optional, outer)
     {
 
@@ -22,6 +22,6 @@ public record OptionProperty : ContainerProperty
         AppendCallToNative(builder, InstancedMarshallerVariable, buffer, value);
     }
 
-    protected override string GetFieldMarshaller() => OptionMarshaller;
-    protected override string GetCopyMarshaller() => OptionMarshaller;
+    protected override string GetFieldMarshaller() => OptionalMarshaller;
+    protected override string GetCopyMarshaller() => OptionalMarshaller;
 }

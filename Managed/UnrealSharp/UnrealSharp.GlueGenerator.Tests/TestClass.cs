@@ -125,6 +125,8 @@ public partial class ATestClass : AActor, ITestInterface
     [UProperty] public partial IDictionary<TSubclassOf<AActor>, FGuid> SubclassToGuid_IDict { get; set; }
     [UProperty(PropertyFlags.EditAnywhere)] public partial IDictionary<TSubclassOf<AActor>, FGuid> SubclassToGuid_IDhict { get; set; }
     
+    [UProperty(PropertyFlags.EditAnywhere)] public partial TOptional<int> OptionalInt { get; set; }
+    
     [UProperty] public partial TMulticastDelegate<TestDelegate> MultiDelegateProp { get; set; }
     [UProperty] public partial TDelegate<TestDelegate2> SingleDelegateProp { get; set; }
     [UProperty] public partial TDelegate<TestDelegate2> SingleDelegateProp2 { get; set; }
