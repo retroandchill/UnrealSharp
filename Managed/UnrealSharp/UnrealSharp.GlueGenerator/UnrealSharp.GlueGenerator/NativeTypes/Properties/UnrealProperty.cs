@@ -134,6 +134,7 @@ public record UnrealProperty : UnrealType
     public readonly bool HasSetter = true;
     
     public bool IsBlittable = false;
+    public bool AccessorsAsFunctions = false;
     public RefKind RefKind;
 
     public readonly bool IsNullable;
@@ -281,6 +282,23 @@ public record UnrealProperty : UnrealType
         property.BlueprintGetter = (string)blueprintGetter.Value!;
     }
     
+    [InspectArgument("BlueprintAccessors", UPropertyAttributeName)]
+    public static void BlueprintAccessorsSpecifier(UnrealType topType, TypedConstant blueprintGetter)
+    {
+        UnrealProperty property = (UnrealProperty)topType;
+        property.AccessorsAsFunctions = (bool)blueprintGetter.Value!;
+        
+        if (property.HasGetter)
+        {
+            property.BlueprintGetter = $"get_{property.SourceName}";
+        }
+        
+        if (property.HasSetter)
+        {
+            property.BlueprintSetter = $"set_{property.SourceName}";
+        }
+    }
+    
     [InspectArgument("Category", UPropertyAttributeName)]
     public static void CategorySpecifier(UnrealType topType, TypedConstant category)
     {
@@ -297,17 +315,19 @@ public record UnrealProperty : UnrealType
 
     public override void ExportType(GeneratorStringBuilder builder, SourceProductionContext spc)
     {
+        string protection = AccessorsAsFunctions ? "private " : Protection.AccessibilityToString();
         string nullableSign = IsNullable ? "?" : string.Empty;
-        string partialDeclaration = IsPartial ? "partial " : string.Empty;
-        builder.AppendLine($"{Protection.AccessibilityToString()}{partialDeclaration}{ManagedType}{nullableSign} {SourceName}");
+        string partialDeclaration = IsPartial && !AccessorsAsFunctions ? "partial " : string.Empty;
+        string backingProperty = AccessorsAsFunctions ? "_BackingField" : string.Empty;
+        builder.AppendLine($"{protection}{partialDeclaration}{ManagedType}{nullableSign} {SourceName}{backingProperty}");
         builder.OpenBrace();
 
-        if (HasGetter)
+        if (HasGetter || AccessorsAsFunctions)
         {
             ExportGetter(builder);
         }
 
-        if (HasSetter)
+        if (HasSetter || AccessorsAsFunctions)
         {
             ExportSetter(builder);
         }

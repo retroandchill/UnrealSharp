@@ -88,6 +88,60 @@ public abstract record UnrealFunctionBase : UnrealStruct
     {
         
     }
+
+    public UnrealFunctionBase(SemanticModel model, ISymbol typeSymbol, PropertyDeclarationSyntax syntax, bool isSetter,
+                              UnrealType outer) : base(isSetter ? ((IPropertySymbol) typeSymbol).SetMethod! : ((IPropertySymbol) typeSymbol).GetMethod!, syntax, outer)
+    {
+        ITypeSymbol propertyTypeSymbol = model.GetTypeInfo(syntax.Type).Type!;
+        
+        IPropertySymbol propertySymbol = (IPropertySymbol) typeSymbol;
+
+        Accessibility methodAccessibility;
+        if (isSetter)
+        {
+            ReturnType = new VoidProperty(this);
+            
+            
+            IParameterSymbol parameterSymbol = propertySymbol.SetMethod!.Parameters.Single();
+                
+            UnrealProperty property = PropertyFactory.CreateProperty(parameterSymbol.Type, null!, parameterSymbol, this);
+            property.RefKind = parameterSymbol.RefKind;
+
+            property.PropertyFlags |= EPropertyFlags.Parm | EPropertyFlags.BlueprintVisible | EPropertyFlags.BlueprintReadOnly;
+            
+            Properties = new EquatableList<UnrealProperty>([property]);
+
+            methodAccessibility = propertySymbol.SetMethod!.DeclaredAccessibility;
+        }
+        else
+        {
+            ISymbol returnValueSymbol = model.GetSymbolInfo(syntax.Type).Symbol!;
+            ReturnType = PropertyFactory.CreateProperty(propertyTypeSymbol, syntax.Type, returnValueSymbol, this);
+            ReturnType.PropertyFlags |= EPropertyFlags.ReturnParm | EPropertyFlags.OutParm | EPropertyFlags.Parm |
+                                        EPropertyFlags.BlueprintVisible | EPropertyFlags.BlueprintReadOnly;
+            
+            FunctionFlags |= EFunctionFlags.HasOutParms;
+            
+            methodAccessibility = propertySymbol.GetMethod!.DeclaredAccessibility;
+        }
+        
+        Accessibility fullAccessibility = methodAccessibility != Accessibility.NotApplicable
+            ? methodAccessibility
+            : propertySymbol.DeclaredAccessibility;
+        FunctionFlags |= fullAccessibility switch
+        {
+            Accessibility.Public => EFunctionFlags.Public,
+            Accessibility.Private => EFunctionFlags.Private,
+            Accessibility.Protected => EFunctionFlags.Protected,
+            Accessibility.NotApplicable => EFunctionFlags.Private,
+            _ => EFunctionFlags.Public
+        };
+        
+        if (propertySymbol.IsStatic)
+        {
+            FunctionFlags |= EFunctionFlags.Static;
+        }
+    }
     
     public UnrealFunctionBase(SemanticModel model, ISymbol typeSymbol, TypeSyntax returnType, SyntaxNode syntax, SeparatedSyntaxList<ParameterSyntax> parameterList, UnrealType outer) : base(typeSymbol, syntax, outer)
     {
@@ -302,9 +356,8 @@ public abstract record UnrealFunctionBase : UnrealStruct
             builder.AppendLine($"{ReturnType.ManagedType} returnValue = ");
         }
         
-        string functionToCall = NeedsImplementationFunction ? $"{SourceName}_Implementation" : SourceName;
-        builder.Append($"{functionToCall}({string.Join(", ", Properties.Select(p => p.RefKind.RefKindToString() + p.SourceName))});");
-        
+        ExportFunctionCallString(builder);
+
         if (HasReturnValue)
         {
             builder.AppendLine();
@@ -312,6 +365,12 @@ public abstract record UnrealFunctionBase : UnrealStruct
         }
         
         builder.CloseBrace();
+    }
+
+    protected virtual void ExportFunctionCallString(GeneratorStringBuilder builder)
+    {
+        string functionToCall = NeedsImplementationFunction ? $"{SourceName}_Implementation" : SourceName;
+        builder.Append($"{functionToCall}({string.Join(", ", Properties.Select(p => p.RefKind.RefKindToString() + p.SourceName))});");
     }
 
     public void ExportImplementationMethod(GeneratorStringBuilder builder)

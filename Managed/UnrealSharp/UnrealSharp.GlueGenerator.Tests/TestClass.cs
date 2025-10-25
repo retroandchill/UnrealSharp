@@ -127,6 +127,13 @@ public partial class UTestClass : AActor, ITestInterface
     [UProperty] public partial TMulticastDelegate<TestDelegate> MultiDelegateProp { get; set; }
     [UProperty] public partial TDelegate<TestDelegate2> SingleDelegateProp { get; set; }
     [UProperty] public partial TDelegate<TestDelegate2> SingleDelegateProp2 { get; set; }
+
+    [UProperty(BlueprintAccessors = true)]
+    public FGuid PartialProp
+    {
+        get => PartialProp_BackingField;
+        set => PartialProp_BackingField = value;
+    }
     
     protected override void BeginPlay_Implementation()
     {

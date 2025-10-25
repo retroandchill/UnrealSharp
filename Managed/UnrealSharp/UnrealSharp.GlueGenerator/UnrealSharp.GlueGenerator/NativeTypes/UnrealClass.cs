@@ -167,6 +167,7 @@ public record UnrealClass : UnrealClassBase
         UnrealClass unrealClass = new UnrealClass(ctx.SemanticModel, typeSymbol, ctx.TargetNode);
         InspectorManager.InspectSpecifiers(UClassAttributeName, unrealClass, attributes);
         InspectorManager.InspectTypeMembers(unrealClass, declarationSyntax, ctx);
+        InspectorManager.InspectPropertyAccessors(unrealClass, declarationSyntax, ctx);
         return unrealClass;
     }
     

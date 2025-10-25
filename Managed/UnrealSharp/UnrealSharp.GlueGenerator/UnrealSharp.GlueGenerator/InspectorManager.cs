@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using UnrealSharp.GlueGenerator.NativeTypes;
+using UnrealSharp.GlueGenerator.NativeTypes.Properties;
 
 namespace UnrealSharp.GlueGenerator;
 
@@ -277,6 +279,34 @@ public static class InspectorManager
             foreach (InspectionContext inspectionContext in inspections)
             {
                 inspectionContext.InspectorData.InspectWithAttributes(topType, ctx, member, inspectionContext.Attributes);
+            }
+        }
+    }
+
+    public static void InspectPropertyAccessors(UnrealClass topType, SyntaxNode syntax,
+                                               GeneratorAttributeSyntaxContext ctx)
+    {
+        TypeDeclarationSyntax declaration = (TypeDeclarationSyntax) syntax;
+        foreach (PropertyDeclarationSyntax property in declaration.Members.OfType<PropertyDeclarationSyntax>())
+        {
+            UnrealProperty? unrealProperty = topType.Properties.FirstOrDefault(p => p.SourceName == property.Identifier.Text);
+            if (unrealProperty is null || !unrealProperty.AccessorsAsFunctions) continue;
+
+            IPropertySymbol propertySymbol = (IPropertySymbol)ctx.SemanticModel.GetDeclaredSymbol(property)!;
+
+            if (propertySymbol.GetMethod is not null)
+            {
+                UnrealFunctionBase getterFunction = new UnrealPropertyAccessor(ctx.SemanticModel, propertySymbol, property, false, topType);
+                getterFunction.FunctionFlags |= EFunctionFlags.BlueprintPure | EFunctionFlags.BlueprintCallable;
+                getterFunction.AddMetaData("BlueprintInternalUseOnly", "true");
+                topType.AddFunction(getterFunction);
+            }
+            else
+            {
+                UnrealFunctionBase setterFunction = new UnrealPropertyAccessor(ctx.SemanticModel, propertySymbol, property, true, topType);
+                setterFunction.FunctionFlags |= EFunctionFlags.BlueprintCallable;
+                setterFunction.AddMetaData("BlueprintInternalUseOnly", "true");
+                topType.AddFunction(setterFunction);           
             }
         }
     }

@@ -127,5 +127,7 @@ public sealed class UPropertyAttribute(PropertyFlags flags = PropertyFlags.None)
     /// </summary>
     public string BlueprintGetter = "";
     
+    public bool BlueprintAccessors = false;
+    
     public int ArrayDim = 1;
 }
