@@ -11,6 +11,7 @@ public record UnrealDelegate : UnrealType
     private readonly UnrealFunctionBase _delegateSignature;
     private readonly bool _isMulticast;
     public override int FieldTypeValue => 4;
+    public string ReturnType => _isMulticast ? "void" : _delegateSignature.ReturnType.ManagedType;
 
     public UnrealDelegate(bool isMulticast, SemanticModel model, ISymbol typeSymbol, SyntaxNode syntax) : base(typeSymbol, syntax)
     {
@@ -102,7 +103,7 @@ public record UnrealDelegate : UnrealType
         
         builder.AppendLine($"protected override {_delegateSignature.EngineName} GetInvoker() => Invoker;");
         
-        builder.AppendLine($"private void Invoker({args})");
+        builder.AppendLine($"private {ReturnType} Invoker({args})");
         builder.OpenBrace();
         _delegateSignature.ExportCallToNative(builder, (paramsbuffer, returnBuffer) =>
         {
@@ -116,7 +117,7 @@ public record UnrealDelegate : UnrealType
         string extensionsClassName = $"{_delegateSignature.EngineName}Extensions";
         builder.AppendLine($"public static class {extensionsClassName}");
         builder.OpenBrace();
-        builder.AppendLine($"public static void Invoke(this TMulticastDelegate<{_delegateSignature.EngineName}> del{(args.Length > 0 ? ", " : string.Empty)}{args})");
+        builder.AppendLine($"public static {ReturnType} Invoke(this TMulticastDelegate<{_delegateSignature.EngineName}> del{(args.Length > 0 ? ", " : string.Empty)}{args})");
         builder.Append($" => del.InnerDelegate.Invoke({parameters});");
         builder.CloseBrace();
     }

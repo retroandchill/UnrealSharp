@@ -12,6 +12,9 @@ public delegate void TestDelegate(int intParam, string strParam);
 [USingleDelegate]
 public delegate void TestDelegate2(int intParam, string strParam);
 
+[USingleDelegate]
+public delegate float TestDelegate3(int intParam, string strParam);
+
 [UEnum]
 public enum ETestEnum : byte
 {
