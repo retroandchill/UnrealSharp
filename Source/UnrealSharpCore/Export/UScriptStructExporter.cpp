@@ -83,7 +83,7 @@ FGCHandleIntPtr UUScriptStructExporter::GetManagedStructType(UScriptStruct *Scri
 {
     if (const UCSScriptStruct* CSStruct = Cast<UCSScriptStruct>(ScriptStruct); CSStruct != nullptr)
     {
-        return CSStruct->GetManagedTypeInfo<FCSManagedTypeInfo>()->GetManagedTypeHandle()->GetHandle();
+        return CSStruct->GetManagedTypeInfo()->GetManagedTypeHandle()->GetHandle();
     }
 
     const UCSAssembly* Assembly = UCSManager::Get().FindOwningAssembly(ScriptStruct);
