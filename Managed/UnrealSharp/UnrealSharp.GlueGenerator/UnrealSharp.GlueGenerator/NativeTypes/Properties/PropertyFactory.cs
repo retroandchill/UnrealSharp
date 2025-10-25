@@ -29,6 +29,7 @@ public static class PropertyFactory
         ["TMulticastDelegate"] = (s, m, t, o) => new MulticastDelegateProperty(s, m, t, o),
         ["TDelegate"] = (s, m, t, o) => new SingleDelegateProperty(s, m, t, o),
         ["TOptional"] = (s, m, t, o) => new OptionalProperty(s, m, t, o),
+        ["Nullable"] = (s, m, t, o) => new NullableProperty(s, m, t, o),
         ["FText"] = (s, m, t, o) => new TextProperty(s, m, t, o),
         ["TWeakObjectPtr"] = (s, m, t, o) => new WeakObjectProperty(s, m, t, o),
         ["FName"] = (s, m, t, o) => new NameProperty(s, m, t, o),

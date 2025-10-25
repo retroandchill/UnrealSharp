@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -32,11 +33,16 @@ public record TemplateProperty : UnrealProperty
             _ => throw new InvalidOperationException($"Unsupported syntax node type: {syntaxNode.GetType().Name} on property {SourceName} of member {memberSymbol.Name}")
         };
 
-        GenericNameSyntax nameSyntax = (GenericNameSyntax) variableDeclarationSyntax;
+        ImmutableArray<TypeSyntax> argSyntax = variableDeclarationSyntax switch
+        {
+            GenericNameSyntax nameSyntax => [..nameSyntax.TypeArgumentList.Arguments],
+            NullableTypeSyntax nullableSyntax => [nullableSyntax.ElementType],
+            _ => throw new InvalidOperationException("Unsupported type syntax: " + variableDeclarationSyntax.ToString() + " on property " + SourceName + " of member " + memberSymbol.Name + "")
+        };
         
         for (int i = 0; i < argumentCount; i++)
         {
-            TypeSyntax argumentSyntax = nameSyntax.TypeArgumentList.Arguments[i];
+            TypeSyntax argumentSyntax = argSyntax[i];
             ITypeSymbol argumentSymbol = namedTypeSymbol.TypeArguments[i];
             UnrealProperty newArgument = PropertyFactory.CreateProperty(argumentSymbol, argumentSyntax, argumentSymbol, this);
             newArgument.SourceName = $"{SourceName}_Arg{i}";

@@ -171,7 +171,7 @@ public record UnrealProperty : UnrealType
         if (typeSymbol != null)
         {
             Namespace = typeSymbol.ContainingNamespace.ToDisplayString();
-            IsNullable = typeSymbol.NullableAnnotation == NullableAnnotation.Annotated;
+            IsNullable = typeSymbol is { NullableAnnotation: NullableAnnotation.Annotated, IsReferenceType: true };
         }
 
         if (memberSymbol is IPropertySymbol propertySymbol)
