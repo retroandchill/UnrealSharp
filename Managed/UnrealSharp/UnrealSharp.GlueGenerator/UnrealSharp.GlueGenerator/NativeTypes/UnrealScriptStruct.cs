@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using UnrealSharp.GlueGenerator.NativeTypes.Properties;
@@ -9,10 +10,22 @@ namespace UnrealSharp.GlueGenerator.NativeTypes;
 public record UnrealScriptStruct : UnrealStruct
 {
     public override int FieldTypeValue => 1;
+    public readonly bool HasPrimaryConstructor;
+    public readonly int PrimaryConstructorParameterCount;
     
     public UnrealScriptStruct(ISymbol typeSymbol, SyntaxNode syntax, UnrealType? outer = null) : base(typeSymbol, syntax, outer)
     {
-        IsRecord = syntax is RecordDeclarationSyntax;
+        if (syntax is RecordDeclarationSyntax recordSyntax)
+        {
+            IsRecord = true;
+
+            if (recordSyntax.ParameterList is not null)
+            {
+                HasPrimaryConstructor = true;
+                PrimaryConstructorParameterCount = recordSyntax.ParameterList.Parameters.Count;
+            }
+        }
+
     }
     
     [Inspect("UnrealSharp.Attributes.UStructAttribute", "UStructAttribute", "Global")]
@@ -70,18 +83,30 @@ public record UnrealScriptStruct : UnrealStruct
         builder.CloseBrace();
         builder.AppendLine();
         
-        builder.AppendLine($"public {SourceName}(IntPtr buffer)");
+        string thisInvocation = HasPrimaryConstructor ? " : this(" : string.Empty;
+        builder.AppendLine($"public {SourceName}(IntPtr buffer){thisInvocation}");
+        if (HasPrimaryConstructor)
+        {
+            for (int i = 0; i < PrimaryConstructorParameterCount; i++)
+            {
+                UnrealProperty property = Properties.List[i];
+                property.ExportInlineFromNative(builder, SourceGenUtilities.Buffer);
+                builder.Append(i == PrimaryConstructorParameterCount - 1 ? "" : ",");     
+            }
+            builder.Append(")");
+        }
+
         builder.OpenBrace();
         builder.BeginUnsafeBlock();
         builder.AppendLine();
         
-        if (isStructBlittable)
+        if (isStructBlittable && !HasPrimaryConstructor)
         {
             builder.AppendLine($"this = BlittableMarshaller<{SourceName}>.FromNative(buffer, 0);");
         }
         else
         {
-            for (int i = 0; i < propertyCount; i++)
+            for (int i = PrimaryConstructorParameterCount; i < propertyCount; i++)
             {
                 UnrealProperty property = Properties.List[i];
                 property.ExportFromNative(builder, SourceGenUtilities.Buffer, $"{property.SourceName} = ");
@@ -91,6 +116,17 @@ public record UnrealScriptStruct : UnrealStruct
         
         builder.EndUnsafeBlock();
         builder.CloseBrace();
+        builder.AppendLine();
+
+        for (int i = 0; i < PrimaryConstructorParameterCount; i++)
+        {
+            UnrealProperty property = Properties.List[i];
+            if (!property.NeedsBackingFields) continue;
+
+            builder.AppendLine();
+            property.ExportInlineFromNativeFunction(builder);
+        }
+        
         builder.CloseBrace();
         
         MakeMarshaller(builder);

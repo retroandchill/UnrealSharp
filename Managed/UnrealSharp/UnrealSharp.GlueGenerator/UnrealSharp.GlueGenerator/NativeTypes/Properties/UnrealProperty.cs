@@ -384,6 +384,22 @@ public record UnrealProperty : UnrealType
     {
         AppendCallFromNative(builder, MarshallerType, buffer, assignmentOperator);
     }
+
+    public void ExportInlineFromNative(GeneratorStringBuilder builder, string buffer)
+    {
+        builder.Append(NeedsBackingFields
+            ? $"{SourceName}_FromNative({buffer})"
+            : AppendFromNative(MarshallerType, buffer));
+    }
+
+    public void ExportInlineFromNativeFunction(GeneratorStringBuilder builder)
+    {
+        string staticQualifier = CanInstanceMarshallerBeStatic ? "static " : string.Empty;
+        builder.Append($"private {staticQualifier}{ManagedType} {SourceName}_FromNative(IntPtr buffer)");
+        builder.OpenBrace();
+        ExportFromNative(builder, "buffer", "return ");
+        builder.CloseBrace();
+    }
     
     protected void AppendCallToNative(GeneratorStringBuilder builder, string marshaller, string buffer, string value)
     {
@@ -393,7 +409,12 @@ public record UnrealProperty : UnrealType
     
     protected void AppendCallFromNative(GeneratorStringBuilder builder, string marshaller, string buffer, string? assignmentOperator = null)
     {
-        builder.Append($"{assignmentOperator}{marshaller}.FromNative({AppendOffsetMath(buffer)}, 0);");
+        builder.Append($"{assignmentOperator}{AppendFromNative(marshaller, buffer)};");
+    }
+
+    protected string AppendFromNative(string marshaller, string buffer)
+    {
+        return $"{marshaller}.FromNative({AppendOffsetMath(buffer)}, 0)";
     }
     
     public override void CreateTypeBuilder(GeneratorStringBuilder builder)

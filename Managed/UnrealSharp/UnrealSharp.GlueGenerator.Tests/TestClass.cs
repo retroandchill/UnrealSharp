@@ -29,12 +29,10 @@ public partial struct FTestStruct
 }
 
 [UStruct]
-public partial record struct FTestRecordStruct
-{
-    public int IntProp { get; set; }
-    public string StringProp { get; set; }
-    public FVector VectorProp { get; set; }
-}
+public partial record struct FTestRecordStruct(
+    int IntProp,
+    string StringProp,
+    IList<FVector> VectorProp);
 
 [UInterface]
 public interface ITestInterface
@@ -47,7 +45,7 @@ public interface ITestInterface
 }
 
 [UClass]
-public partial class UTestClass : AActor, ITestInterface
+public partial class ATestClass : AActor, ITestInterface
 {
     [UProperty] public partial bool BoolProp { get; set; }
     [UProperty] public partial byte ByteProp { get; set; }

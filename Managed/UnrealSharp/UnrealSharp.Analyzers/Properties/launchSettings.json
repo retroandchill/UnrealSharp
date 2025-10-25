@@ -3,7 +3,7 @@
   "profiles": {
     "DebugRoslynAnalyzers": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "../UnrealSharp.Analyzers.Sample/UnrealSharp.Analyzers.Sample.csproj"
+      "targetProject": "../../UnrealSharp.GlueGenerator.Tests/UnrealSharp.GlueGenerator.Tests.csproj"
     }
   }
 }

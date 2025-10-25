@@ -10,6 +10,7 @@ US0001 | UnrealSharp | Error | UStaticLambdaAnalyzer
 US0002 | Category | Error | UEnumAnalyzer
 US0003 | Category | Error | UInterfaceAnalyzer
 US0004 | Category | Error | UInterfaceAnalyzer
+US0005 | Category | Error | UnrealTypeAnalyzer
 US0006 | Category | Error | UnrealTypeAnalyzer
 US0007 | Category | Error | UObjectCreationAnalyzer
 US0008 | Category | Error | UObjectCreationAnalyzer

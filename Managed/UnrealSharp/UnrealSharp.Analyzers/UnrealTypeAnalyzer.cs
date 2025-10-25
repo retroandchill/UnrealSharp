@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using UnrealSharp.SourceGenerator.Utilities;
 
@@ -11,6 +13,7 @@ public class UnrealTypeAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
         PrefixRule, 
+        StructRule,
         ClassRule
         );
 
@@ -23,6 +26,11 @@ public class UnrealTypeAnalyzer : DiagnosticAnalyzer
     }
     
     public const string StructAnalyzerId = "US0005";
+    private static readonly LocalizableString StructAnalyzerTitle = "UnrealSharp Struct Constructor Analyzer";
+    private static readonly LocalizableString StructAnalyzerMessageFormat = "{0} is a UStruct with a primary constructor, and is not a record type. UStructs with primary constructors should be records.";
+    private static readonly LocalizableString StructAnalyzerDescription = "Ensures UStructs with primary constructors are records.";
+    private static readonly DiagnosticDescriptor StructRule = new(StructAnalyzerId, StructAnalyzerTitle, StructAnalyzerMessageFormat, RuleCategory.Category, DiagnosticSeverity.Error, isEnabledByDefault: true, description: StructAnalyzerDescription);
+    
     public const string ClassAnalyzerId = "US0006";
     private static readonly LocalizableString ClassAnalyzerTitle = "UnrealSharp Class Field Analyzer";
     private static readonly LocalizableString ClassAnalyzerMessageFormat = "{0} is a UProperty and a field, which is not allowed in classes. UProperties in classes must be properties.";
@@ -71,6 +79,16 @@ public class UnrealTypeAnalyzer : DiagnosticAnalyzer
         if (symbol.TypeKind == TypeKind.Struct && AnalyzerStatics.HasAttribute(symbol, AnalyzerStatics.UStructAttribute))
         {
             prefix = "F";
+
+            if (symbol.DeclaringSyntaxReferences.Any(t => t.GetSyntax() is StructDeclarationSyntax
+                {
+                    ParameterList: not null
+                }))
+            {
+                Diagnostic structDiagnostic = Diagnostic.Create(StructRule, symbol.Locations[0],symbol.TypeKind.ToString(), symbol.Name, prefix);
+                context.ReportDiagnostic(structDiagnostic);
+            }
+            
         }
         else if (symbol.TypeKind == TypeKind.Enum && AnalyzerStatics.HasAttribute(symbol, AnalyzerStatics.UEnumAttribute))
         {

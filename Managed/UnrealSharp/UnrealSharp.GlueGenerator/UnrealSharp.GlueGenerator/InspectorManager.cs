@@ -203,8 +203,10 @@ public static class InspectorManager
         INamedTypeSymbol typeSymbol = (INamedTypeSymbol) ctx.SemanticModel.GetDeclaredSymbol(declaration)!;
         
         bool isStruct = typeSymbol.TypeKind == TypeKind.Struct;
+
+        SeparatedSyntaxList<ParameterSyntax> primaryConstructorParameters = declaration.ParameterList?.Parameters ?? [];
         
-        foreach (SyntaxNode member in declaration.Members.SelectMany(GetAllAccessibleSyntax))
+        foreach (SyntaxNode member in primaryConstructorParameters.Concat(declaration.Members.SelectMany(GetAllAccessibleSyntax)))
         {
             List<InspectionContext>? inspections = null;
             
@@ -291,6 +293,18 @@ public static class InspectorManager
                     
                     TryAdd(fieldSymbol);
                 }
+            }
+            else if (member is ParameterSyntax parameter)
+            {
+                if (!isStruct) continue;
+                
+                string name = parameter.Identifier.Text;
+                if (typeSymbol.GetMembers(name).FirstOrDefault() is not IPropertySymbol propertySymbol)
+                {
+                    continue;
+                }
+                
+                TryAdd(propertySymbol);
             }
             else if (ctx.SemanticModel.GetDeclaredSymbol(member) is ISymbol symbol)
             {
