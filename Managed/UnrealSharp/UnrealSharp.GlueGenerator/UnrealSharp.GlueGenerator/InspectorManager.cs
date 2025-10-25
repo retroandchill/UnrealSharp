@@ -199,6 +199,11 @@ public static class InspectorManager
     public static void InspectTypeMembers(UnrealType topType, SyntaxNode syntax, GeneratorAttributeSyntaxContext ctx)
     {
         TypeDeclarationSyntax declaration = (TypeDeclarationSyntax) syntax;
+
+        INamedTypeSymbol typeSymbol = (INamedTypeSymbol) ctx.SemanticModel.GetDeclaredSymbol(declaration)!;
+        
+        bool isStruct = typeSymbol.TypeKind == TypeKind.Struct;
+        
         foreach (SyntaxNode member in declaration.Members.SelectMany(GetAllAccessibleSyntax))
         {
             List<InspectionContext>? inspections = null;
@@ -206,51 +211,72 @@ public static class InspectorManager
             void TryAdd(ISymbol symbol)
             {
                 ImmutableArray<AttributeData> attributes = symbol.GetAttributes();
+                const string upropertyAttributeName = "UPropertyAttribute";
+                bool foundUProperty = false;
                 foreach (AttributeData attribute in attributes)
                 {
                     string attributeName = attribute.AttributeClass!.Name;
+                    if (!foundUProperty && attributeName.Equals(upropertyAttributeName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        foundUProperty = true;
+                    }
+                    
                     if (!TryGetInspectorData(attributeName, out InspectorData? inspectorData))
                     {
                         return;
                     }
-                    
-                    if (inspections is null)
-                    {
-                        inspections = new List<InspectionContext>();
-                    }
+
+                    ProcessAttributeInspection(attribute, inspectorData);
+                }
+
+                // If we have a field or property without a UProperty attribute for a struct, we still want to inspect it as if it was a UProperty.
+                if (isStruct && !foundUProperty && symbol is IFieldSymbol or IPropertySymbol)
+                {
+                    ProcessAttributeInspection(null, GetInspectorData(upropertyAttributeName));
+                }
+            }
+
+            void ProcessAttributeInspection(AttributeData? attribute, InspectorData? inspectorData)
+            {
+                if (inspections is null)
+                {
+                    inspections = new List<InspectionContext>();
+                }
                 
-                    InspectionContext? foundContext = null;
+                InspectionContext? foundContext = null;
                     
-                    int index = -1;
-                    for (int i = 0; i < inspections.Count; i++)
+                int index = -1;
+                for (int i = 0; i < inspections.Count; i++)
+                {
+                    if (inspections[i].InspectorData == inspectorData)
                     {
-                        if (inspections[i].InspectorData == inspectorData)
-                        {
-                            foundContext = inspections[i];
-                            index = i;
-                            break;
-                        }
+                        foundContext = inspections[i];
+                        index = i;
+                        break;
                     }
+                }
                     
-                    if (foundContext is null)
+                if (foundContext is null)
+                {
+                    foundContext = new InspectionContext
                     {
-                        foundContext = new InspectionContext
-                        {
-                            InspectorData = inspectorData!,
-                            Attributes = new List<AttributeData>()
-                        };
-                    }
-                    
+                        InspectorData = inspectorData!,
+                        Attributes = new List<AttributeData>()
+                    };
+                }
+
+                if (attribute is not null)
+                {
                     foundContext.Value.Attributes.Add(attribute);
-                    
-                    if (index >= 0)
-                    {
-                        inspections[index] = foundContext.Value;
-                    }
-                    else
-                    {
-                        inspections.Add(foundContext.Value);
-                    }
+                }
+
+                if (index >= 0)
+                {
+                    inspections[index] = foundContext.Value;
+                }
+                else
+                {
+                    inspections.Add(foundContext.Value);
                 }
             }
             

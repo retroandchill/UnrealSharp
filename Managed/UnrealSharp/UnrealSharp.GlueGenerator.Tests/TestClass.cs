@@ -29,11 +29,11 @@ public partial struct FTestStruct
 }
 
 [UStruct]
-public partial struct FTestRecordStruct
+public partial record struct FTestRecordStruct
 {
-    [UProperty] public int IntProp { get; set; }
-    [UProperty] public string StringProp { get; set; }
-    [UProperty] public FVector VectorProp { get; set; }
+    public int IntProp { get; set; }
+    public string StringProp { get; set; }
+    public FVector VectorProp { get; set; }
 }
 
 [UInterface]
