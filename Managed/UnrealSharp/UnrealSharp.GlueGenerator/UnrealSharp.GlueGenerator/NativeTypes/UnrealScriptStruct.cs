@@ -16,7 +16,7 @@ public record UnrealScriptStruct : UnrealStruct
     }
     
     [Inspect("UnrealSharp.Attributes.UStructAttribute", "UStructAttribute", "Global")]
-    public static UnrealType? UStructAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, MemberDeclarationSyntax declarationSyntax, IReadOnlyList<AttributeData> attributes)
+    public static UnrealType? UStructAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, SyntaxNode declarationSyntax, IReadOnlyList<AttributeData> attributes)
     {
         UnrealScriptStruct unrealStruct = new UnrealScriptStruct(ctx.TargetSymbol, declarationSyntax, outer);
         InspectorManager.InspectSpecifiers("UStructAttribute", unrealStruct, attributes);

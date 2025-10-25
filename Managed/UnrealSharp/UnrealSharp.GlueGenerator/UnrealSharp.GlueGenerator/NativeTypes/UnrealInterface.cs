@@ -16,7 +16,7 @@ public record UnrealInterface : UnrealClassBase
     }
     
     [Inspect("UnrealSharp.Attributes.UInterfaceAttribute", "UInterfaceAttribute", "Global")]
-    public static UnrealType? UInterfaceAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, MemberDeclarationSyntax declarationSyntax, IReadOnlyList<AttributeData> attributes)
+    public static UnrealType? UInterfaceAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, SyntaxNode declarationSyntax, IReadOnlyList<AttributeData> attributes)
     {
         UnrealInterface unrealClass = new UnrealInterface((ITypeSymbol) ctx.TargetSymbol, declarationSyntax, outer);
         InspectorManager.InspectSpecifiers(UInterfaceAttributeName, unrealClass, attributes);

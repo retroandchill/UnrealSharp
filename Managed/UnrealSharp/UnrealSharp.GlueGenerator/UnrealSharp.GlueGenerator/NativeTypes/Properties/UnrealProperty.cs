@@ -194,7 +194,7 @@ public record UnrealProperty : UnrealType
     }
     
     [Inspect(FullyQualifiedAttributeName = "UnrealSharp.Attributes.UPropertyAttribute", Name = "UPropertyAttribute")]
-    public static UnrealType? UPropertyAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, MemberDeclarationSyntax declaration, IReadOnlyList<AttributeData> attributes)
+    public static UnrealType? UPropertyAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, SyntaxNode declaration, IReadOnlyList<AttributeData> attributes)
     {
         UnrealStruct owningStruct = (UnrealStruct) outer!;
         UnrealProperty property = PropertyFactory.CreateProperty(ctx.SemanticModel, declaration, outer!);

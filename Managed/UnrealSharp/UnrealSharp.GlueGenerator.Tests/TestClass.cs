@@ -134,6 +134,12 @@ public partial class UTestClass : AActor, ITestInterface
         get => PartialProp_BackingField;
         set => PartialProp_BackingField = value;
     }
+
+    public float FunctionProperty
+    {
+        [UFunction(FunctionFlags.BlueprintPure)]
+        get => 4.9f;
+    }
     
     protected override void BeginPlay_Implementation()
     {

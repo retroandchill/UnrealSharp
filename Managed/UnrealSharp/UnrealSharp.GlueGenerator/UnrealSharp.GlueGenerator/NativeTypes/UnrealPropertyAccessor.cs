@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace UnrealSharp.GlueGenerator.NativeTypes;
 
-public record UnrealPropertyAccessor : UnrealFunctionBase
+public record UnrealPropertyAccessor : UnrealFunction
 {
     public readonly string PropertyName;
     public readonly bool IsSetter;
@@ -20,6 +20,6 @@ public record UnrealPropertyAccessor : UnrealFunctionBase
     {
         builder.Append(IsSetter
             ? $"{PropertyName} = {Properties.Select(p => p.RefKind.RefKindToString() + p.SourceName).Single()};"
-            : $"{PropertyName}");
+            : $"{PropertyName};");
     }
 }

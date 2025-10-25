@@ -161,9 +161,9 @@ public record UnrealClass : UnrealClassBase
     }
 
     [Inspect(LongUClassAttributeName, UClassAttributeName, "Global")]
-    public static UnrealType? UClassAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, MemberDeclarationSyntax declarationSyntax, IReadOnlyList<AttributeData> attributes)
+    public static UnrealType? UClassAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, SyntaxNode declarationSyntax, IReadOnlyList<AttributeData> attributes)
     {
-        ITypeSymbol typeSymbol = (ITypeSymbol) ModelExtensions.GetDeclaredSymbol(ctx.SemanticModel, declarationSyntax)!;
+        ITypeSymbol typeSymbol = (ITypeSymbol) ctx.SemanticModel.GetDeclaredSymbol(declarationSyntax)!;
         UnrealClass unrealClass = new UnrealClass(ctx.SemanticModel, typeSymbol, ctx.TargetNode);
         InspectorManager.InspectSpecifiers(UClassAttributeName, unrealClass, attributes);
         InspectorManager.InspectTypeMembers(unrealClass, declarationSyntax, ctx);

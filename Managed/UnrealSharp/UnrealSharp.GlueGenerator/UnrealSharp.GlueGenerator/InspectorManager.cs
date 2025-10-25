@@ -39,7 +39,7 @@ public sealed class InspectorData
         }
     }
 
-    public void InspectWithAttributes(UnrealType topType, GeneratorAttributeSyntaxContext ctx, MemberDeclarationSyntax declaration, IReadOnlyList<AttributeData> attributes)
+    public void InspectWithAttributes(UnrealType topType, GeneratorAttributeSyntaxContext ctx, SyntaxNode declaration, IReadOnlyList<AttributeData> attributes)
     {
         UnrealType? outer = null;
         if (InspectAttributeDelegate != null)
@@ -87,7 +87,7 @@ public sealed class InspectorData
     }
 }
 
-public delegate UnrealType? InspectAttributeDelegate(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, MemberDeclarationSyntax declarationSyntax, IReadOnlyList<AttributeData> attributes);
+public delegate UnrealType? InspectAttributeDelegate(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, SyntaxNode declarationSyntax, IReadOnlyList<AttributeData> attributes);
 public delegate void InspectAttributeArgumentDelegate(UnrealType topType, TypedConstant constant);
 
 public static class InspectorManager
@@ -199,7 +199,7 @@ public static class InspectorManager
     public static void InspectTypeMembers(UnrealType topType, SyntaxNode syntax, GeneratorAttributeSyntaxContext ctx)
     {
         TypeDeclarationSyntax declaration = (TypeDeclarationSyntax) syntax;
-        foreach (MemberDeclarationSyntax member in declaration.Members)
+        foreach (SyntaxNode member in declaration.Members.SelectMany(GetAllAccessibleSyntax))
         {
             List<InspectionContext>? inspections = null;
             
@@ -283,6 +283,18 @@ public static class InspectorManager
         }
     }
 
+    private static IEnumerable<SyntaxNode> GetAllAccessibleSyntax(MemberDeclarationSyntax syntax)
+    {
+        yield return syntax;
+        if (syntax is PropertyDeclarationSyntax { AccessorList: not null } property)
+        {
+            foreach (AccessorDeclarationSyntax accessor in property.AccessorList.Accessors)
+            {
+                yield return accessor;
+            }
+        }
+    }
+
     public static void InspectPropertyAccessors(UnrealClass topType, SyntaxNode syntax,
                                                GeneratorAttributeSyntaxContext ctx)
     {
@@ -301,7 +313,8 @@ public static class InspectorManager
                 getterFunction.AddMetaData("BlueprintInternalUseOnly", "true");
                 topType.AddFunction(getterFunction);
             }
-            else
+            
+            if (propertySymbol.SetMethod is not null)
             {
                 UnrealFunctionBase setterFunction = new UnrealPropertyAccessor(ctx.SemanticModel, propertySymbol, property, true, topType);
                 setterFunction.FunctionFlags |= EFunctionFlags.BlueprintCallable;

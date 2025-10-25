@@ -253,22 +253,34 @@ public abstract record UnrealFunctionBase : UnrealStruct
     }
 
     [Inspect("UnrealSharp.Attributes.UFunctionAttribute", "UFunctionAttribute")]
-    public static UnrealType? UFunctionAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, MemberDeclarationSyntax memberDeclaration, IReadOnlyList<AttributeData> attributes)
+    public static UnrealType? UFunctionAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, SyntaxNode memberDeclaration, IReadOnlyList<AttributeData> attributes)
     {
         UnrealClassBase unrealClass = (UnrealClassBase) outer!;
         IMethodSymbol methodSymbol = (IMethodSymbol) ctx.SemanticModel.GetDeclaredSymbol(memberDeclaration)!;
-        MethodDeclarationSyntax methodDeclaration = (MethodDeclarationSyntax) memberDeclaration;
 
+        
         UnrealFunctionBase unrealFunction;
-        if (methodSymbol.ReturnType.Name is "Task" or "ValueTask")
+        switch (memberDeclaration)
         {
-            unrealFunction = new UnrealAsyncFunction(ctx.SemanticModel, methodSymbol, methodDeclaration, outer!);
-            unrealClass.AddAsyncFunction(unrealFunction);
-        }
-        else
-        {
-            unrealFunction = new UnrealFunction(ctx.SemanticModel, methodSymbol, methodDeclaration, outer!);
-            unrealClass.AddFunction(unrealFunction);
+            case MethodDeclarationSyntax methodDeclaration when methodSymbol.ReturnType.Name is "Task" or "ValueTask":
+                unrealFunction = new UnrealAsyncFunction(ctx.SemanticModel, methodSymbol, methodDeclaration, outer!);
+                unrealClass.AddAsyncFunction(unrealFunction);
+                break;
+            case MethodDeclarationSyntax methodDeclaration:
+                unrealFunction = new UnrealFunction(ctx.SemanticModel, methodSymbol, methodDeclaration, outer!);
+                unrealClass.AddFunction(unrealFunction);
+                break;
+            case AccessorDeclarationSyntax accessorDeclaration:
+            {
+                PropertyDeclarationSyntax property = (PropertyDeclarationSyntax) accessorDeclaration.Parent!.Parent!;
+                IPropertySymbol propertySymbol = (IPropertySymbol) methodSymbol.AssociatedSymbol!;
+                unrealFunction = new UnrealPropertyAccessor(ctx.SemanticModel, propertySymbol, property,
+                    methodSymbol.MethodKind == MethodKind.PropertySet, outer!);
+                unrealClass.AddFunction(unrealFunction);
+                break;
+            }
+            default:
+                throw new InvalidOperationException($"Unsupported member declaration type {memberDeclaration.GetType()}");
         }
 
         return unrealFunction;

@@ -12,6 +12,11 @@ public record UnrealFunction : UnrealFunctionBase
     public UnrealFunction(SemanticModel model, ISymbol typeSymbol, DelegateDeclarationSyntax syntax, UnrealType outer) : base(model, typeSymbol, syntax, outer)
     {
     }
+    
+    public UnrealFunction(SemanticModel model, ISymbol typeSymbol, PropertyDeclarationSyntax syntax, 
+                          bool isSetter, UnrealType outer) : base(model, typeSymbol, syntax, isSetter, outer)
+    {
+    }
 
     public UnrealFunction(EFunctionFlags flags, string sourceName, string typeNameSpace, Accessibility accessibility, string assemblyName, UnrealType? outer = null) : base(flags, sourceName, typeNameSpace, accessibility, assemblyName, outer)
     {

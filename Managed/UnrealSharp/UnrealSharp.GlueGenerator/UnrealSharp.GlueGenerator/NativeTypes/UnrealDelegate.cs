@@ -32,18 +32,18 @@ public record UnrealDelegate : UnrealType
     }
     
     [Inspect("UnrealSharp.Attributes.UMultiDelegateAttribute", "UMultiDelegateAttribute", "Global")]
-    public static UnrealType? UMultiDelegateAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, MemberDeclarationSyntax declarationSyntax, IReadOnlyList<AttributeData> attributes)
+    public static UnrealType? UMultiDelegateAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, SyntaxNode declarationSyntax, IReadOnlyList<AttributeData> attributes)
     {
         return MakeDelegate(true, ctx, declarationSyntax);
     }
     
     [Inspect("UnrealSharp.Attributes.USingleDelegateAttribute", "USingleDelegateAttribute", "Global")]
-    public static UnrealType? USingleDelegateAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, MemberDeclarationSyntax declarationSyntax, IReadOnlyList<AttributeData> attributes)
+    public static UnrealType? USingleDelegateAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, SyntaxNode declarationSyntax, IReadOnlyList<AttributeData> attributes)
     {
         return MakeDelegate(false, ctx, declarationSyntax);
     }
 
-    static UnrealDelegate MakeDelegate(bool isMulticast, GeneratorAttributeSyntaxContext ctx, MemberDeclarationSyntax declarationSyntax)
+    static UnrealDelegate MakeDelegate(bool isMulticast, GeneratorAttributeSyntaxContext ctx, SyntaxNode declarationSyntax)
     {
         ITypeSymbol typeSymbol = (ITypeSymbol)ctx.SemanticModel.GetDeclaredSymbol(declarationSyntax)!;
         UnrealDelegate unrealClass = new UnrealDelegate(isMulticast, ctx.SemanticModel, typeSymbol, ctx.TargetNode);

@@ -46,7 +46,7 @@ public record UnrealEnum : UnrealType
     }
     
     [Inspect("UnrealSharp.Attributes.UEnumAttribute", "UEnumAttribute", "Global")]
-    public static UnrealType? UEnumAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, MemberDeclarationSyntax declarationSyntax, IReadOnlyList<AttributeData> attributes)
+    public static UnrealType? UEnumAttribute(UnrealType? outer, GeneratorAttributeSyntaxContext ctx, SyntaxNode declarationSyntax, IReadOnlyList<AttributeData> attributes)
     {
         ITypeSymbol typeSymbol = (ITypeSymbol) ctx.SemanticModel.GetDeclaredSymbol(declarationSyntax)!;
         UnrealEnum unrealEnum = new UnrealEnum(declarationSyntax, typeSymbol, outer);
