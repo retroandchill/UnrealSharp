@@ -68,7 +68,7 @@ public static class Program
 
     public static string GetSolutionFile()
     {
-        return Path.Combine(GetScriptFolder(), BuildToolOptions.ProjectName + ".sln");
+        return Path.Combine(GetProjectDirectory(), BuildToolOptions.ProjectName + ".sln");
     }
 
     public static string GetUProjectFilePath()

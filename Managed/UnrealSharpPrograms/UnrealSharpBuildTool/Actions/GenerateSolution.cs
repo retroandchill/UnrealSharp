@@ -13,14 +13,14 @@ public class GenerateSolution : BuildToolAction
         // Assign project name to the solution.
         generateSln.StartInfo.ArgumentList.Add("-n");
         generateSln.StartInfo.ArgumentList.Add(Program.GetProjectNameAsManaged());
-        generateSln.StartInfo.WorkingDirectory = Program.GetScriptFolder();
+        generateSln.StartInfo.WorkingDirectory = Program.GetProjectDirectory();
 
         // Force the creation of the solution.
         generateSln.StartInfo.ArgumentList.Add("--force");
         generateSln.StartBuildToolProcess();
 
         List<string> existingProjectsList = GetExistingProjects()
-                .Select(x => Path.GetRelativePath(Program.GetScriptFolder(), x))
+                .Select(x => Path.GetRelativePath(Program.GetProjectDirectory(), x))
                 .ToList();
 
         AddProjectToSln(existingProjectsList);
@@ -66,7 +66,7 @@ public class GenerateSolution : BuildToolAction
             addProjectToSln.StartInfo.ArgumentList.Add("-s");
             addProjectToSln.StartInfo.ArgumentList.Add(projects.Key);
 
-            addProjectToSln.StartInfo.WorkingDirectory = Program.GetScriptFolder();
+            addProjectToSln.StartInfo.WorkingDirectory = Program.GetProjectDirectory();
             addProjectToSln.StartBuildToolProcess();
         }
     }
@@ -78,13 +78,13 @@ public class GenerateSolution : BuildToolAction
 
     private static string GetPathRelativeToProject(string path)
     {
-        var fullPath = Path.GetFullPath(path, Program.GetScriptFolder());
+        var fullPath = Path.GetFullPath(path, Program.GetProjectDirectory());
         var relativePath = Path.GetRelativePath(Program.GetProjectDirectory(), fullPath);
         var projectDirName = Path.GetDirectoryName(relativePath)!;
 
         // If we're in the script folder we want these to be in the Script solution folder, otherwise we want these to
         // be in the directory for the plugin itself.
         var containingDirName = Path.GetDirectoryName(projectDirName)!;
-        return containingDirName == "Script" ? containingDirName : Path.GetDirectoryName(containingDirName)!;
+        return containingDirName.StartsWith("Script") ? containingDirName : Path.GetDirectoryName(containingDirName)!;
     }
 }

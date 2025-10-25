@@ -35,7 +35,7 @@ public class PackageProject : BuildToolAction
         BuildSolution buildBindings = new BuildSolution(bindingsPath, extraArguments, BuildConfig.Publish);
         buildBindings.RunAction();
         
-        BuildSolution buildUserSolution = new BuildSolution(Program.GetScriptFolder(), extraArguments, BuildConfig.Publish);
+        BuildSolution buildUserSolution = new BuildSolution(Program.GetProjectDirectory(), extraArguments, BuildConfig.Publish);
         buildUserSolution.RunAction();
 
         BuildEmitLoadOrder.EmitLoadOrder(binariesPath);

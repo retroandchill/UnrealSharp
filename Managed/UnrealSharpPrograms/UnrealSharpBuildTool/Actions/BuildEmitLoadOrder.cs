@@ -9,9 +9,9 @@ public class BuildEmitLoadOrder : BuildToolAction
 {
     public override bool RunAction()
     {
-        BuildPropsEmitter.GenerateBuildPropsFile(Program.GetScriptFolder());
+        BuildPropsEmitter.GenerateBuildPropsFile(Program.GetProjectDirectory());
         
-        BuildSolution buildSolution = new BuildSolution(Program.GetScriptFolder());
+        BuildSolution buildSolution = new BuildSolution(Program.GetProjectDirectory());
         if (!buildSolution.RunAction())
         {
             return false;
@@ -66,7 +66,7 @@ public class BuildEmitLoadOrder : BuildToolAction
                 continue;
             }
             
-            string csProjectPath = Path.Combine(Program.GetScriptFolder(), projectFile.Directory.Name);
+            string csProjectPath = projectFile.Directory.FullName;
             string propertiesDirectoryPath = Path.Combine(csProjectPath, "Properties");
             string launchSettingsPath = Path.Combine(propertiesDirectoryPath, "launchSettings.json");
             if (!Directory.Exists(propertiesDirectoryPath))

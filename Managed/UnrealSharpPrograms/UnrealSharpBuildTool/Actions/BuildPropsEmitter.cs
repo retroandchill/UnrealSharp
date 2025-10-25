@@ -6,7 +6,7 @@ public class CreateDirectoryBuildPropsFile : BuildToolAction
 {
     public override bool RunAction()
     {
-        BuildPropsEmitter.GenerateBuildPropsFile(Program.GetScriptFolder());
+        BuildPropsEmitter.GenerateBuildPropsFile(Program.GetProjectDirectory());
         return true;
     }
 }

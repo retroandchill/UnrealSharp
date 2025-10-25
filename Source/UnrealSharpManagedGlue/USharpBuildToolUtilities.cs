@@ -40,6 +40,8 @@ public static class USharpBuildToolUtilities
 
     public static void TryCreateGlueProject(string csprojPath, string projectName, IEnumerable<string>? dependencyPaths, string projectRoot)
     {
+        if (projectName == "Engine.Glue") return;
+        
         if (!File.Exists(csprojPath))
         {
             string projectDirectory = Path.GetDirectoryName(csprojPath)!;
