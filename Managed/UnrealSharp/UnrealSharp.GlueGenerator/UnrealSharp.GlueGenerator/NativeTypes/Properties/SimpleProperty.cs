@@ -10,7 +10,7 @@ public record SimpleProperty : UnrealProperty
     public SimpleProperty(SyntaxNode syntaxNode, ISymbol memberSymbol, ITypeSymbol? typeSymbol, PropertyType propertyType, UnrealType outer) 
         : base(syntaxNode, memberSymbol, typeSymbol, propertyType, outer)
     {
-        ManagedType = $"{Namespace}.{typeSymbol!.Name}";
+        ManagedType = $"global::{Namespace}.{typeSymbol!.Name}";
         ShortEngineName = typeSymbol.Name.Substring(1);
     }
 

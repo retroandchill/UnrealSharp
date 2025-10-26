@@ -132,6 +132,7 @@ public record UnrealProperty : UnrealType
     public readonly bool IsPartial = true;
     public readonly bool HasGetter = true;
     public readonly bool HasSetter = true;
+    public readonly Accessibility SetterAccessibility = Accessibility.NotApplicable;
     
     public bool IsBlittable = false;
     public bool AccessorsAsFunctions = false;
@@ -153,6 +154,24 @@ public record UnrealProperty : UnrealType
     public string OffsetVariable => $"{Outer!.SourceName}_{SourceName}_Offset";
     public string NativePropertyVariable => $"{Outer!.SourceName}_{SourceName}_Property";
     public string InstancedMarshallerVariable => $"{Outer!.SourceName}_{SourceName}_Marshaller";
+    
+    protected string SetterAccessibilityText
+    {
+        get
+        {
+            return SetterAccessibility switch
+            {
+                Accessibility.NotApplicable => "",
+                Accessibility.Private => "private ",
+                Accessibility.ProtectedAndInternal => "protected internal ",
+                Accessibility.Protected => "protected ",
+                Accessibility.Internal => "internal ",
+                Accessibility.ProtectedOrInternal => "protected internal ",
+                Accessibility.Public => "public ",
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+    }
     
     public string CallToNative => MarshallerType + ToNative;
     public string CallFromNative => MarshallerType + FromNative;
@@ -178,6 +197,13 @@ public record UnrealProperty : UnrealType
         {
             HasGetter = propertySymbol.GetMethod is not null;
             HasSetter = propertySymbol.SetMethod is not null;
+            
+            SetterAccessibility = propertySymbol.SetMethod?.DeclaredAccessibility ?? Accessibility.NotApplicable;
+            
+            if (SetterAccessibility == propertySymbol.DeclaredAccessibility)
+            {
+                SetterAccessibility = Accessibility.NotApplicable;
+            }
         }
     }
     
@@ -350,7 +376,7 @@ public record UnrealProperty : UnrealType
     
     protected virtual void ExportSetter(GeneratorStringBuilder builder)
     {
-        builder.AppendLine("set => ");
+        builder.AppendLine($"{SetterAccessibilityText}set => ");
         ExportToNative(builder, SourceGenUtilities.NativeObject, SourceGenUtilities.ValueParam);
     }
 

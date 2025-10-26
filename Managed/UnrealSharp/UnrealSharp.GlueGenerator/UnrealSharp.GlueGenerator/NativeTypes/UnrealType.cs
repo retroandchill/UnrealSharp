@@ -28,7 +28,7 @@ public record UnrealType
     public virtual string EngineName => SourceName;
     public readonly string AssemblyName = string.Empty;
     
-    public string FullName => Namespace + "." + SourceName;
+    public string FullName => "global::" + Namespace + "." + SourceName;
     public string Namespace = string.Empty;
     
     public Accessibility Protection;

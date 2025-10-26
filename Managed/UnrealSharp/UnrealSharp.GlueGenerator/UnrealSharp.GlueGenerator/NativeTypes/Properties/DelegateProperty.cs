@@ -82,7 +82,7 @@ public record DelegateProperty : FieldProperty
 
     protected override void ExportSetter(GeneratorStringBuilder builder)
     {
-        builder.AppendLine("set");
+        builder.AppendLine($"{SetterAccessibilityText}set");
         builder.OpenBrace();
         ExportToNative(builder, SourceGenUtilities.NativeObject, SourceGenUtilities.ValueParam);
         builder.CloseBrace();

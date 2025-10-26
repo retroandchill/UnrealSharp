@@ -8,7 +8,7 @@ namespace UnrealSharp.GlueGenerator.NativeTypes;
 
 public record UnrealAsyncFunction : UnrealFunctionBase
 {
-    const string CancellationTokenType = "System.Threading.CancellationToken";
+    const string CancellationTokenType = "global::System.Threading.CancellationToken";
     
     public UnrealAsyncFunction(SemanticModel model, ISymbol typeSymbol, MethodDeclarationSyntax syntax, UnrealType outer) : base(model, typeSymbol, syntax, outer)
     {

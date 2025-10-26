@@ -20,11 +20,21 @@ public sealed class UnrealTypeDiscoveryGenerator : IIncrementalGenerator
                 globalType.InspectAttribute.FullyQualifiedAttributeName, static (_, _) => true,
                 static (ctx, _) =>
                 {
-                    InspectorData decode = InspectorManager.GetInspectorData(ctx.Attributes[0].AttributeClass!.Name)!;
-                    UnrealType type = decode.InspectAttributeDelegate!(null, ctx, (MemberDeclarationSyntax) ctx.TargetNode,
-                        ctx.Attributes)!;
-                    return type;
-                });
+                    try
+                    {
+                        InspectorData decode =
+                            InspectorManager.GetInspectorData(ctx.Attributes[0].AttributeClass!.Name)!;
+                        UnrealType type = decode.InspectAttributeDelegate!(null, ctx,
+                            (MemberDeclarationSyntax)ctx.TargetNode,
+                            ctx.Attributes)!;
+                        return type;
+                    }
+                    catch (Exception)
+                    {
+                        return null!;
+                    }
+                })
+                .Where(t => t != null);
             
             context.RegisterSourceOutput(newTypes, static (spc, unrealType) => EmitType(spc, unrealType));
         }

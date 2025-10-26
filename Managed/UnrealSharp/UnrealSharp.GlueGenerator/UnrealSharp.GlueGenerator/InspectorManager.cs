@@ -232,7 +232,7 @@ public static class InspectorManager
                 }
 
                 // If we have a field or property without a UProperty attribute for a struct, we still want to inspect it as if it was a UProperty.
-                if (isStruct && !foundUProperty && symbol is IFieldSymbol or IPropertySymbol)
+                if (isStruct && !foundUProperty && symbol.DeclaringSyntaxReferences.Any(x => x.GetSyntax() is ParameterSyntax))
                 {
                     ProcessAttributeInspection(null, GetInspectorData(upropertyAttributeName));
                 }

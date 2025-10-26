@@ -398,7 +398,7 @@ public abstract class PropertyTranslator
             ExportPropertyVariables(builder, property, property.SourceName);
         }
         
-        bool isReadWrite = property.IsReadWrite();
+        bool isReadWrite = property.IsReadWrite() || property.IsEditAnywhere();
         bool isEditDefaultsOnly = property.IsEditDefaultsOnly();
 
         Action? exportSetterAction = SupportsSetter && (isReadWrite || isEditDefaultsOnly) ? ExportSetter : null;

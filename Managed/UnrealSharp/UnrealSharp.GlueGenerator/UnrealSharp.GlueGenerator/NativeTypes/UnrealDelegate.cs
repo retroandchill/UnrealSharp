@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using UnrealSharp.GlueGenerator.NativeTypes.Properties;
 
 namespace UnrealSharp.GlueGenerator.NativeTypes;
 
@@ -96,7 +97,7 @@ public record UnrealDelegate : UnrealType
     
     void AppendInvoker(GeneratorStringBuilder builder, string args)
     {
-        if (_delegateSignature.HasAnyProperties)
+        if (_delegateSignature.HasAnyProperties || _delegateSignature.ReturnType is not VoidProperty)
         {
             _delegateSignature.ExportBackingVariables(builder);
         }

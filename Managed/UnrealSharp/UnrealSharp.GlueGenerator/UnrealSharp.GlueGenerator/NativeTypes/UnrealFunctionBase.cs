@@ -104,7 +104,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
             
             IParameterSymbol parameterSymbol = propertySymbol.SetMethod!.Parameters.Single();
                 
-            UnrealProperty property = PropertyFactory.CreateProperty(parameterSymbol.Type, null!, parameterSymbol, this);
+            UnrealProperty property = PropertyFactory.CreateProperty(parameterSymbol.Type, syntax, parameterSymbol, this);
             property.RefKind = parameterSymbol.RefKind;
 
             property.PropertyFlags |= EPropertyFlags.Parm | EPropertyFlags.BlueprintVisible | EPropertyFlags.BlueprintReadOnly;
