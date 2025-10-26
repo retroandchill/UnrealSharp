@@ -15,6 +15,13 @@ public record ContainerProperty : TemplateProperty
         NeedsBackingFields = true;
         CanInstanceMarshallerBeStatic = outer is not UnrealClass;
     }
+    
+    public ContainerProperty(EquatableArray<UnrealProperty> innerTypes, PropertyType propertyType, string marshaller, string sourceName, Accessibility accessibility, string protection, UnrealType outer) 
+        : base(innerTypes, propertyType, marshaller, sourceName, accessibility, protection, outer)
+    {
+        NeedsBackingFields = true;
+        CanInstanceMarshallerBeStatic = outer is not UnrealClass;
+    }
 
     protected override void ExportGetter(GeneratorStringBuilder builder)
     {

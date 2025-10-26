@@ -10,6 +10,12 @@ public record ArrayProperty : ContainerProperty
         
     }
     
+    public ArrayProperty(UnrealProperty innerType, string sourceName, Accessibility accessibility, string protection, UnrealType outer) 
+        : base(new EquatableArray<UnrealProperty>([innerType]), PropertyType.Array, "", sourceName, accessibility, protection, outer)
+    {
+        
+    }
+    
     protected override string GetFieldMarshaller() => "ArrayMarshaller";
     protected override string GetCopyMarshaller() => "ArrayCopyMarshaller";
 }

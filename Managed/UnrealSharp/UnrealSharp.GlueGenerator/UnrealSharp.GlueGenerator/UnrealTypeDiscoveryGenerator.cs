@@ -16,7 +16,7 @@ public sealed class UnrealTypeDiscoveryGenerator : IIncrementalGenerator
         
         foreach (InspectorData globalType in inspectors)
         {
-            IncrementalValuesProvider<UnrealType> newTypes = provider.ForAttributeWithMetadataName<UnrealType>(
+            IncrementalValuesProvider<ITypeDiscoveryResult> newTypes = provider.ForAttributeWithMetadataName<ITypeDiscoveryResult>(
                 globalType.InspectAttribute.FullyQualifiedAttributeName, static (_, _) => true,
                 static (ctx, _) =>
                 {
@@ -27,23 +27,33 @@ public sealed class UnrealTypeDiscoveryGenerator : IIncrementalGenerator
                         UnrealType type = decode.InspectAttributeDelegate!(null, ctx,
                             (MemberDeclarationSyntax)ctx.TargetNode,
                             ctx.Attributes)!;
-                        return type;
+                        return new TypeDiscoveryResult(type, (MemberDeclarationSyntax)ctx.TargetNode, 
+                            (INamedTypeSymbol) ctx.SemanticModel.GetSymbolInfo(ctx.TargetNode).Symbol!);
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        return null!;
+                        return new TypeDiscoveryError(e);
                     }
-                })
-                .Where(t => t != null);
+                });
             
-            context.RegisterSourceOutput(newTypes, static (spc, unrealType) => EmitType(spc, unrealType));
+            context.RegisterSourceOutput(newTypes, static (spc, result) => EmitType(spc, result));
         }
     }
     
-    private static void EmitType(SourceProductionContext spc, UnrealType utype)
+    private static void EmitType(SourceProductionContext spc, ITypeDiscoveryResult result)
     {
-        try 
+        try
         {
+            TypeDiscoveryResult validResult = result switch
+            {
+                TypeDiscoveryResult r => r,
+                TypeDiscoveryError e => throw e.Exception,
+                _ => throw new Exception("Unknown result type")
+            };
+            
+            UnrealType utype = validResult.Type;
+            TypePostProcessorManager.ProcessType(utype, validResult.Syntax, validResult.TypeSymbol, spc);
+            
             GeneratorStringBuilder builder = new GeneratorStringBuilder();
             builder.BeginGeneratedSourceFile(utype);
             
