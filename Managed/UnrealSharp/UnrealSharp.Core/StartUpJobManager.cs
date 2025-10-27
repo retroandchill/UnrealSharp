@@ -3,6 +3,7 @@ namespace UnrealSharp.Core;
 public static class StartUpJobManager
 {
     private static readonly Dictionary<string, List<Action>> AssemblyStartupJobs = new();
+    private static readonly Dictionary<string, List<Action<IntPtr>>> TypeAdditionalBuildJobs = new();
     
     public static void RegisterStartUpJob(string assemblyName, Action initializer)
     {
@@ -12,6 +13,17 @@ public static class StartUpJobManager
             AssemblyStartupJobs[assemblyName] = value;
         }
 
+        value.Add(initializer);
+    }
+
+    public static void RegisterTypeAdditionalBuildJob(string typeName, Action<IntPtr> initializer)
+    {
+        if (!TypeAdditionalBuildJobs.TryGetValue(typeName, out List<Action<IntPtr>>? value))
+        {
+            value = new List<Action<IntPtr>>();
+            TypeAdditionalBuildJobs[typeName] = value;
+        }
+        
         value.Add(initializer);
     }
     
@@ -28,6 +40,21 @@ public static class StartUpJobManager
         }
             
         AssemblyStartupJobs.Remove(assemblyName);
+    }
+
+    public static void RunTypeAdditionalBuildJob(string typeName, IntPtr nativePtr)
+    {
+        if (!TypeAdditionalBuildJobs.TryGetValue(typeName, out List<Action<IntPtr>>? initializers))
+        {
+            return;
+        }
+        
+        foreach (Action<IntPtr> initializer in initializers)
+        {
+            initializer(nativePtr);
+        }
+        
+        TypeAdditionalBuildJobs.Remove(typeName);   
     }
     
     public static bool HasJobsForAssembly(string assemblyName) => AssemblyStartupJobs.ContainsKey(assemblyName);

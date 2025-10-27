@@ -54,6 +54,7 @@ public static class StringBuilderExtensions
         builder.AppendLine($"IntPtr {type.BuilderNativePtr} = NewType(\"{type.EngineName}\", {DateTimeOffset.UtcNow.ToUnixTimeSeconds()}, {type.FieldTypeValue}, typeof({type.FullName}), out var needsRebuild);");
         builder.AppendLine("if (!needsRebuild) return;");
         type.CreateTypeBuilder(builder);
+        builder.AppendLine($"UnrealSharp.Core.StartUpJobManager.RunTypeAdditionalBuildJob(\"{type.EngineName}\", {type.BuilderNativePtr});");
         builder.EndModuleInitializer();
     }
     
