@@ -363,6 +363,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
         }
         
         builder.OpenBrace();
+        builder.AppendLine();
         
         foreach (UnrealProperty parameter in Properties)
         {

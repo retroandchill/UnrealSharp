@@ -10,4 +10,8 @@ public record BoolProperty : SimpleProperty
         : base(syntaxNode, memberSymbol, typeSymbol, PropertyType.Bool, outer)
     {
     }
+    
+    public BoolProperty(string sourceName, Accessibility accessibility, UnrealType outer) : base(PropertyType.Bool, "bool", sourceName, accessibility, outer)
+    {
+    }
 }
