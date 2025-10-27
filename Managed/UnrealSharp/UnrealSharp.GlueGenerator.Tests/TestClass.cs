@@ -155,7 +155,7 @@ public partial class ATestClass : AActor, ITestInterface
 
     [UFunction(FunctionFlags.BlueprintEvent)]
     public partial float TestFunction(int intParam, string strParam);
-    public partial float TestFunction_Implementation(int intParam, string strParam)
+    public virtual partial float TestFunction_Implementation(int intParam, string strParam)
     {
         return 0f;
     }
@@ -174,13 +174,13 @@ public partial class ATestClass : AActor, ITestInterface
 
     [UFunction(FunctionFlags.RunOnServer)]
     public partial void ServerFunction(int intParam, string strParam);
-    public partial void ServerFunction_Implementation(int intParam, string strParam)
+    public virtual partial void ServerFunction_Implementation(int intParam, string strParam)
     {
         
     }
 
     public partial void InterfaceFunction(int intParam, string strParam);
-    public partial void InterfaceFunction_Implementation(int intParam, string strParam)
+    public virtual partial void InterfaceFunction_Implementation(int intParam, string strParam)
     {
         throw new NotImplementedException();
     }
