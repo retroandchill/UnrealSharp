@@ -158,6 +158,7 @@ public record UnrealClass : UnrealClassBase
         : base(parentName, parentNamespace, sourceName, typeNameSpace, accessibility, assemblyName, outer)
     {
         ClassFlags = flags;
+        Overrides = new EquatableList<string>(new List<string>());
     }
 
     [Inspect(LongUClassAttributeName, UClassAttributeName, "Global")]

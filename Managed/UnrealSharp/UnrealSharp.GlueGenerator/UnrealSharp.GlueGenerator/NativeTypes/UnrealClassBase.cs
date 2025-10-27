@@ -30,6 +30,8 @@ public abstract record UnrealClassBase : UnrealStruct
     {
         ParentName = parentName;
         ParentNamespace = parentNamespace;
+        Functions = new EquatableList<UnrealFunctionBase>(new List<UnrealFunctionBase>());
+        AsyncFunctions = new EquatableList<UnrealFunctionBase>(new List<UnrealFunctionBase>());
     }
     
     public void AddFunction(UnrealFunctionBase function)
