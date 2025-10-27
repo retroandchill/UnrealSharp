@@ -11,4 +11,8 @@ public record BlittableProperty : SimpleProperty
     {
         IsBlittable = true;
     }
+    
+    public BlittableProperty(PropertyType type, string managedType, string sourceName, Accessibility accessibility, UnrealType outer) : base(type, managedType, sourceName, accessibility, outer)
+    {
+    }
 }

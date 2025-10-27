@@ -18,7 +18,7 @@ public record UnrealStruct : UnrealType
     public UnrealStruct(string sourceName, string typeNameSpace, Accessibility accessibility, string assemblyName, UnrealType? outer = null) 
         : base(sourceName, typeNameSpace, accessibility, assemblyName, outer)
     {
-
+        Properties = new EquatableList<UnrealProperty>(new List<UnrealProperty>());
     }
     
     public void AddProperty(UnrealProperty property)

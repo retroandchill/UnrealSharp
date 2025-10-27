@@ -145,7 +145,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
     
     public UnrealFunctionBase(SemanticModel model, ISymbol typeSymbol, TypeSyntax returnType, SyntaxNode syntax, SeparatedSyntaxList<ParameterSyntax> parameterList, UnrealType outer) : base(typeSymbol, syntax, outer)
     {
-        ITypeSymbol returnTypeSymbol = model.GetTypeInfo(returnType).Type!;
+        ITypeSymbol? returnTypeSymbol = model.GetTypeInfo(returnType).Type!;
 
         bool hasOutParams = false;
         if (returnTypeSymbol.Name == VoidProperty.VoidTypeName)
@@ -158,7 +158,8 @@ public abstract record UnrealFunctionBase : UnrealStruct
             if (typeSymbol is IMethodSymbol { ReturnType.Name: "Task" or "ValueTask" }) 
             {
                 INamedTypeSymbol taskSymbol = model.Compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1")!;
-                if (returnTypeSymbol.OriginalDefinition.Equals(taskSymbol, SymbolEqualityComparer.Default))
+                INamedTypeSymbol valueTaskSymbol = model.Compilation.GetTypeByMetadataName("System.Threading.Tasks.ValueTask`1")!;
+                if (returnTypeSymbol.OriginalDefinition.Equals(taskSymbol, SymbolEqualityComparer.Default) || returnTypeSymbol.OriginalDefinition.Equals(valueTaskSymbol, SymbolEqualityComparer.Default))
                 {
                     ITypeSymbol taskReturnType = returnTypeSymbol is INamedTypeSymbol namedType && namedType.TypeArguments.Length == 1
                         ? namedType.TypeArguments[0]
@@ -170,6 +171,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
                 else
                 {
                     returnValueSymbol = returnTypeSymbol;
+                    returnTypeSymbol = null;
                 }
             }
             else
@@ -177,7 +179,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
                 returnValueSymbol = model.GetSymbolInfo(returnType).Symbol!;
             }
 
-            ReturnType = PropertyFactory.CreateProperty(returnTypeSymbol, returnType, returnValueSymbol, this);
+            ReturnType = returnTypeSymbol is not null ? PropertyFactory.CreateProperty(returnTypeSymbol, returnType, returnValueSymbol, this) : new VoidProperty(this);
             ReturnType.PropertyFlags |= EPropertyFlags.ReturnParm | EPropertyFlags.OutParm | EPropertyFlags.Parm |
                                          EPropertyFlags.BlueprintVisible | EPropertyFlags.BlueprintReadOnly;
             
@@ -214,7 +216,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
                     break;
             }
             
-            if (parameterSymbol.HasExplicitDefaultValue)
+            if (parameterSymbol.HasExplicitDefaultValue && parameterSymbol.ExplicitDefaultValue is not null)
             {
                 string defaultValue;
                 if (parameterSymbol.Type.TypeKind == TypeKind.Enum)
@@ -364,7 +366,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
         
         foreach (UnrealProperty parameter in Properties)
         {
-            parameter.ExportFromNative(builder, SourceGenUtilities.Buffer, $"{parameter.ManagedType} {parameter.SourceName} = ");
+            parameter.ExportFromNative(builder, SourceGenUtilities.Buffer, $"{parameter.ManagedType} {parameter.SourceName} = ", true);
         }
         
         builder.AppendLine();
@@ -458,7 +460,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
         if (HasReturnValue)
         {
             builder.AppendLine();
-            ReturnType.ExportFromNative(builder, SourceGenUtilities.ParamsBuffer, "return ");
+            ReturnType.ExportFromNative(builder, SourceGenUtilities.ParamsBuffer, "return ", true);
         }
             
         builder.EndUnsafeBlock();

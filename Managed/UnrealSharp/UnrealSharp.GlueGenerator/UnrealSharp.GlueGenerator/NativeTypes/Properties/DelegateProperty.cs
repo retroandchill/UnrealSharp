@@ -63,11 +63,21 @@ public record DelegateProperty : FieldProperty
         builder.CloseBrace();
     }
 
-    public override void ExportFromNative(GeneratorStringBuilder builder, string buffer, string? assignmentOperator = null)
+    public override void ExportFromNative(GeneratorStringBuilder builder, string buffer,
+                                          string? assignmentOperator = null, bool isMethodParam = false)
     {
-        string nativePropertyParam = _isMulticast ? $", {NativePropertyVariable}" : "";
-        builder.AppendLine($"{BackingFieldName} ??= {CallFromNative}({AppendOffsetMath(SourceGenUtilities.NativeObject)}{nativePropertyParam}, 0);");
-        builder.AppendLine($"return {BackingFieldName};");
+        if (isMethodParam)
+        {
+            string nativePropertyParam = _isMulticast ? $", {NativePropertyVariable}" : "";
+            builder.AppendLine($"{assignmentOperator}{CallFromNative}({AppendOffsetMath(SourceGenUtilities.NativeObject)}{nativePropertyParam}, 0);");
+        }
+        else
+        {
+            string nativePropertyParam = _isMulticast ? $", {NativePropertyVariable}" : "";
+            builder.AppendLine($"{BackingFieldName} ??= {CallFromNative}({AppendOffsetMath(SourceGenUtilities.NativeObject)}{nativePropertyParam}, 0);");
+            builder.AppendLine($"{assignmentOperator}{BackingFieldName};");
+        }
+        
     }
 
     public override void ExportToNative(GeneratorStringBuilder builder, string buffer, string value)
@@ -82,7 +92,7 @@ public record DelegateProperty : FieldProperty
 
     protected override void ExportSetter(GeneratorStringBuilder builder)
     {
-        builder.AppendLine($"{SetterAccessibilityText}set");
+        builder.AppendLine($"{SetterAccessibilityText}{SetText}");
         builder.OpenBrace();
         ExportToNative(builder, SourceGenUtilities.NativeObject, SourceGenUtilities.ValueParam);
         builder.CloseBrace();

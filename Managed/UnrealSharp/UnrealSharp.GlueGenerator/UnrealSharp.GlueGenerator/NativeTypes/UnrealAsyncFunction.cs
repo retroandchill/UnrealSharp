@@ -108,14 +108,15 @@ public record UnrealAsyncFunction : UnrealFunctionBase
         
         asyncWrapperClass.Properties = new EquatableList<UnrealProperty>([completedProperty, failedProperty]);
         
-        builder.AppendLine($"private Task<{ReturnType.ManagedType}>? _task;");
+        string taskTypeName = ReturnType is VoidProperty ? "Task" : $"Task<{ReturnType.ManagedType}>";
+        builder.AppendLine($"private {taskTypeName}? _task;");
         
         if (hasCancellationToken)
         {
             builder.AppendLine("private readonly CancellationTokenSource _cancellationTokenSource = new();");
         }
 
-        builder.AppendLine($"public Func<CancellationToken, Task<{ReturnType.ManagedType}>>? asyncDelegate;");
+        builder.AppendLine($"public Func<CancellationToken, {taskTypeName}>? asyncDelegate;");
     }
 
     void AppendActivateOverride(GeneratorStringBuilder builder)
@@ -159,20 +160,19 @@ public record UnrealAsyncFunction : UnrealFunctionBase
         builder.AppendLine("if (IsDestroyed) { return; }");
         builder.AppendLine("if (t.IsFaulted)");
         builder.OpenBrace();
-        builder.AppendLine("Failed?.InnerDelegate.Invoke(default!, t.Exception?.ToString() ?? \"Faulted without exception\");");
+        builder.AppendLine(
+            ReturnType is VoidProperty
+                ? "Failed?.InnerDelegate.Invoke(t.Exception?.ToString() ?? \"Faulted without exception\");"
+                : "Failed?.InnerDelegate.Invoke(default!, t.Exception?.ToString() ?? \"Faulted without exception\");");
+
         builder.CloseBrace();
         builder.AppendLine("else");
         builder.OpenBrace();
-        
-        if (ReturnType is VoidProperty)
-        {
-            builder.AppendLine("Completed?.InnerDelegate.Invoke(null);");
-        }
-        else
-        {
-            builder.AppendLine("Completed?.InnerDelegate.Invoke(t.Result, null);");
-        }
-        
+
+        builder.AppendLine(ReturnType is VoidProperty
+            ? "Completed?.InnerDelegate.Invoke(null);"
+            : "Completed?.InnerDelegate.Invoke(t.Result, null);");
+
         builder.CloseBrace();
         builder.CloseBrace();
     }
@@ -189,25 +189,38 @@ public record UnrealAsyncFunction : UnrealFunctionBase
         ObjectProperty returnValue = new ObjectProperty(wrapperName, SourceGenUtilities.ReturnValueName, Accessibility.NotApplicable, asyncFactoryFunction);
         returnValue.MakeReturnParameter();
         
-        ObjectProperty targetParam = new ObjectProperty(Outer!.SourceName, "Target", Accessibility.NotApplicable, asyncFactoryFunction);
-        targetParam.MakeParameter();
-        
+        bool isStatic = FunctionFlags.HasFlag(EFunctionFlags.Static);
+
+        if (!isStatic)
+        {
+            ObjectProperty targetParam = new ObjectProperty(Outer!.SourceName, "Target", Accessibility.NotApplicable,
+                asyncFactoryFunction);
+            targetParam.MakeParameter();
+            
+            properties.Insert(0, targetParam);
+        }
+
         foreach (UnrealProperty parameter in properties)
         {
             parameter.Outer = asyncWrapperClass;
         }
-        properties.Insert(0, targetParam);
 
         asyncFactoryFunction.Properties = new EquatableList<UnrealProperty>(properties);
         asyncFactoryFunction.ReturnType = returnValue;
-        
-        asyncFactoryFunction.AddMetaData("DefaultToSelf", "Target");
+
+        if (!FunctionFlags.HasFlag(EFunctionFlags.Static))
+        {
+            asyncFactoryFunction.AddMetaData("DefaultToSelf", "Target");
+        }
+
         asyncFactoryFunction.AddMetaData("BlueprintInternalUseOnly", "true");
         
         builder.AppendLine("public static " + wrapperName + " " + SourceName + "(" + string.Join(", ", asyncFactoryFunction.Properties.Select(p => $"{p.ManagedType} {p.SourceName}")) + ")");
         builder.OpenBrace();
-        builder.AppendLine($"var action = NewObject<{wrapperName}>(Target);");
-        builder.AppendLine("action.asyncDelegate = (cancellationToken) => Target." + SourceName + "(" + string.Join(", ", asyncFactoryFunction.Properties.Skip(1).Select(p => p.SourceName)) + (hasCancellationToken ? ", cancellationToken" : string.Empty) + ");");
+        builder.AppendLine($"var action = NewObject<{wrapperName}>({(isStatic ? "" : "Target")});");
+
+        string[] options = asyncFactoryFunction.Properties.Skip(isStatic ? 0 : 1).Select(p => p.SourceName).ToArray();
+        builder.AppendLine("action.asyncDelegate = (cancellationToken) => " + (isStatic ? Outer!.SourceName : "Target") + "." + SourceName + "(" + string.Join(", ", options) + (hasCancellationToken ? $"{(options.Length > 0 ? ", " : "")}cancellationToken" : string.Empty) + ");");
         builder.AppendLine("return action;");
         builder.CloseBrace();
         

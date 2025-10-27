@@ -10,8 +10,8 @@ public record ArrayProperty : ContainerProperty
         
     }
     
-    public ArrayProperty(UnrealProperty innerType, string sourceName, Accessibility accessibility, string protection, UnrealType outer) 
-        : base(new EquatableArray<UnrealProperty>([innerType]), PropertyType.Array, "", sourceName, accessibility, protection, outer)
+    public ArrayProperty(UnrealProperty innerType, string sourceName, string managedType, Accessibility accessibility, string protection, UnrealType outer) 
+        : base(new EquatableArray<UnrealProperty>([innerType]), PropertyType.Array, managedType, "", sourceName, accessibility, protection, outer)
     {
         
     }

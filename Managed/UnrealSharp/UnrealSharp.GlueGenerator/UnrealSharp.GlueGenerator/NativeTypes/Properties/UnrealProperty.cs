@@ -130,9 +130,9 @@ public record UnrealProperty : UnrealType
     public int ArrayDim = 1;
 
     public readonly bool IsPartial = true;
-    public readonly bool HasGetter = true;
-    public readonly bool HasSetter = true;
-    public readonly Accessibility SetterAccessibility = Accessibility.NotApplicable;
+    public bool HasGetter = true;
+    public bool HasSetter = true;
+    public Accessibility SetterAccessibility = Accessibility.NotApplicable;
     
     public bool IsBlittable = false;
     public bool AccessorsAsFunctions = false;
@@ -172,6 +172,9 @@ public record UnrealProperty : UnrealType
             };
         }
     }
+
+    protected bool SetterIsInitOnly = false;
+    protected string SetText => SetterIsInitOnly ? "init" : "set";
     
     public string CallToNative => MarshallerType + ToNative;
     public string CallFromNative => MarshallerType + FromNative;
@@ -204,6 +207,8 @@ public record UnrealProperty : UnrealType
             {
                 SetterAccessibility = Accessibility.NotApplicable;
             }
+
+            SetterIsInitOnly = propertySymbol.SetMethod?.IsInitOnly ?? false;
         }
     }
     
@@ -376,7 +381,7 @@ public record UnrealProperty : UnrealType
     
     protected virtual void ExportSetter(GeneratorStringBuilder builder)
     {
-        builder.AppendLine($"{SetterAccessibilityText}set => ");
+        builder.AppendLine($"{SetterAccessibilityText}{SetText} => ");
         ExportToNative(builder, SourceGenUtilities.NativeObject, SourceGenUtilities.ValueParam);
     }
 
@@ -413,7 +418,8 @@ public record UnrealProperty : UnrealType
         AppendCallToNative(builder, MarshallerType, buffer, value);
     }
     
-    public virtual void ExportFromNative(GeneratorStringBuilder builder, string buffer, string? assignmentOperator = null)
+    public virtual void ExportFromNative(GeneratorStringBuilder builder, string buffer,
+                                         string? assignmentOperator = null, bool isMethodParam = false)
     {
         AppendCallFromNative(builder, MarshallerType, buffer, assignmentOperator);
     }

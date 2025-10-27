@@ -70,7 +70,7 @@ public static class StringBuilderExtensions
         
         string typeName = string.IsNullOrEmpty(overrideTypeName) ? type.SourceName : overrideTypeName;
 
-        builder.AppendLine($"[GeneratedType(\"{type.EngineName}\", \"{type.FullName}\")]");
+        builder.AppendLine($"[GeneratedType(\"{type.EngineName}\", \"{type.FullName.TrimStart("global::".ToCharArray())}\")]");
         builder.AppendLine($"public partial {typeKeyWord} {typeName}");
         
         if (!string.IsNullOrEmpty(baseType))

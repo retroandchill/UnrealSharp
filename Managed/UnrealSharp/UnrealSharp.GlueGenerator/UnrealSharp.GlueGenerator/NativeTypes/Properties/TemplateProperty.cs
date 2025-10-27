@@ -56,18 +56,15 @@ public record TemplateProperty : UnrealProperty
         ManagedType = $"{fullNamespace}.{namedTypeSymbol.Name}<{typedArguments}>";
     }
     
-    public TemplateProperty(EquatableArray<UnrealProperty> innerTypes, PropertyType propertyType, string marshaller, string sourceName, Accessibility accessibility, string protection, UnrealType outer) 
+    public TemplateProperty(EquatableArray<UnrealProperty> innerTypes, PropertyType propertyType, string managedType, string marshaller, string sourceName, Accessibility accessibility, string protection, UnrealType outer) 
         : base(propertyType, sourceName, accessibility, outer)
     {
+        ManagedType = managedType;
         CacheNativeTypePtr = true;
         
         _marshallerName = marshaller;
         InnerTypes = innerTypes;
         SourceName = sourceName;
-        
-        string fullNamespace = "System.Collections.Generic";
-        string typedArguments = string.Join(", ", InnerTypes.Select(t => t.ManagedType));
-        ManagedType = $"{fullNamespace}.{marshaller}<{typedArguments}>";
     }
     
     public string MakeMarshallerType(string marshallerName, params string[] innerTypes)

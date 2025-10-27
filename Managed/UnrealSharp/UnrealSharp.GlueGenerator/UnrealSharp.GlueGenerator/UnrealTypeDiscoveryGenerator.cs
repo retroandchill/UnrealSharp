@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using UnrealSharp.GlueGenerator.NativeTypes;
@@ -18,25 +19,24 @@ public sealed class UnrealTypeDiscoveryGenerator : IIncrementalGenerator
         {
             IncrementalValuesProvider<ITypeDiscoveryResult> newTypes = provider.ForAttributeWithMetadataName<ITypeDiscoveryResult>(
                 globalType.InspectAttribute.FullyQualifiedAttributeName, static (_, _) => true,
-                static (ctx, _) =>
+                (ctx, _) =>
                 {
                     try
                     {
-                        InspectorData decode =
-                            InspectorManager.GetInspectorData(ctx.Attributes[0].AttributeClass!.Name)!;
-                        UnrealType type = decode.InspectAttributeDelegate!(null, ctx,
+                        UnrealType type = globalType.InspectAttributeDelegate!(null, ctx,
                             (MemberDeclarationSyntax)ctx.TargetNode,
                             ctx.Attributes)!;
-                        return new TypeDiscoveryResult(type, (MemberDeclarationSyntax)ctx.TargetNode, 
-                            (INamedTypeSymbol) ctx.SemanticModel.GetSymbolInfo(ctx.TargetNode).Symbol!);
+                        return new TypeDiscoveryResult(type);
                     }
                     catch (Exception e)
                     {
                         return new TypeDiscoveryError(e);
                     }
                 });
+
+            var combined = newTypes.Combine(context.AnalyzerConfigOptionsProvider);
             
-            context.RegisterSourceOutput(newTypes, static (spc, result) => EmitType(spc, result));
+            context.RegisterSourceOutput(combined, static (spc, result) => EmitType(spc, result.Left));
         }
     }
     
@@ -44,15 +44,12 @@ public sealed class UnrealTypeDiscoveryGenerator : IIncrementalGenerator
     {
         try
         {
-            TypeDiscoveryResult validResult = result switch
+            UnrealType utype = result switch
             {
-                TypeDiscoveryResult r => r,
+                TypeDiscoveryResult r => r.Type,
                 TypeDiscoveryError e => throw e.Exception,
                 _ => throw new Exception("Unknown result type")
             };
-            
-            UnrealType utype = validResult.Type;
-            TypePostProcessorManager.ProcessType(utype, validResult.Syntax, validResult.TypeSymbol, spc);
             
             GeneratorStringBuilder builder = new GeneratorStringBuilder();
             builder.BeginGeneratedSourceFile(utype);
@@ -65,7 +62,7 @@ public sealed class UnrealTypeDiscoveryGenerator : IIncrementalGenerator
         }
         catch (Exception exception)
         {
-            DiagnosticDescriptor descriptor = new DiagnosticDescriptor("UTDG001", "UnrealTypeDiscoveryGenerator Error", exception.ToString(), "UnrealTypeDiscoveryGenerator", DiagnosticSeverity.Error, true);
+            DiagnosticDescriptor descriptor = new DiagnosticDescriptor("UTDG001", "UnrealTypeDiscoveryGenerator Error", $"Error processing result '{result.Name}': {exception}", "UnrealTypeDiscoveryGenerator", DiagnosticSeverity.Error, true);
             spc.ReportDiagnostic(Diagnostic.Create(descriptor, Location.None));
         }
     }

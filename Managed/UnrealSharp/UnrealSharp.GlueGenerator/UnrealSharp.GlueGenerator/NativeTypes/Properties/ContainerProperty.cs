@@ -16,8 +16,8 @@ public record ContainerProperty : TemplateProperty
         CanInstanceMarshallerBeStatic = outer is not UnrealClass;
     }
     
-    public ContainerProperty(EquatableArray<UnrealProperty> innerTypes, PropertyType propertyType, string marshaller, string sourceName, Accessibility accessibility, string protection, UnrealType outer) 
-        : base(innerTypes, propertyType, marshaller, sourceName, accessibility, protection, outer)
+    public ContainerProperty(EquatableArray<UnrealProperty> innerTypes, PropertyType propertyType, string managedType, string marshaller, string sourceName, Accessibility accessibility, string protection, UnrealType outer) 
+        : base(innerTypes, propertyType, managedType, marshaller, sourceName, accessibility, protection, outer)
     {
         NeedsBackingFields = true;
         CanInstanceMarshallerBeStatic = outer is not UnrealClass;
@@ -31,7 +31,8 @@ public record ContainerProperty : TemplateProperty
         builder.CloseBrace();
     }
 
-    public override void ExportFromNative(GeneratorStringBuilder builder, string buffer, string? assignmentOperator = null)
+    public override void ExportFromNative(GeneratorStringBuilder builder, string buffer,
+                                          string? assignmentOperator = null, bool isMethodParam = false)
     {
         string delegates = string.Join(", ", InnerTypes.Select(t => t).Select(t => $"{t.CallToNative}, {t.CallFromNative}"));
         builder.AppendLine($"{InstancedMarshallerVariable} ??= new {MarshallerType}({NativePropertyVariable}, {delegates});");
@@ -49,7 +50,7 @@ public record ContainerProperty : TemplateProperty
 
     protected override void ExportSetter(GeneratorStringBuilder builder)
     {
-        builder.AppendLine($"{SetterAccessibilityText}set");
+        builder.AppendLine($"{SetterAccessibilityText}{SetText}");
         builder.OpenBrace();
         ExportToNative(builder, SourceGenUtilities.NativeObject, SourceGenUtilities.ValueParam);
         builder.CloseBrace();

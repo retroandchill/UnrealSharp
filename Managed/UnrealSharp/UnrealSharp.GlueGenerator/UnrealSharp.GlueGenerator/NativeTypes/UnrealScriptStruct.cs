@@ -10,8 +10,8 @@ namespace UnrealSharp.GlueGenerator.NativeTypes;
 public record UnrealScriptStruct : UnrealStruct
 {
     public override int FieldTypeValue => 1;
-    public readonly bool HasPrimaryConstructor;
-    public readonly int PrimaryConstructorParameterCount;
+    public bool HasPrimaryConstructor { get; set; }
+    public int PrimaryConstructorParameterCount { get; set; }
     
     public UnrealScriptStruct(ISymbol typeSymbol, SyntaxNode syntax, UnrealType? outer = null) : base(typeSymbol, syntax, outer)
     {
@@ -21,6 +21,11 @@ public record UnrealScriptStruct : UnrealStruct
         HasPrimaryConstructor = true;
         PrimaryConstructorParameterCount = typeSyntax.ParameterList.Parameters.Count;
 
+    }
+    
+    public UnrealScriptStruct(string sourceName, string typeNameSpace, Accessibility accessibility, string assemblyName, UnrealType? outer = null) : base(sourceName, typeNameSpace, accessibility, assemblyName, outer)
+    {
+        
     }
     
     [Inspect("UnrealSharp.Attributes.UStructAttribute", "UStructAttribute", "Global")]

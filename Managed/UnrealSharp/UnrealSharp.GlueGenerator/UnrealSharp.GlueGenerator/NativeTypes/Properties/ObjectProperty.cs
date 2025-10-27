@@ -20,7 +20,7 @@ public record ObjectProperty : FieldProperty
         CacheNativeTypePtr = true;
     }
 
-    public override void ExportFromNative(GeneratorStringBuilder builder, string buffer, string? assignmentOperator = null)
+    public override void ExportFromNative(GeneratorStringBuilder builder, string buffer, string? assignmentOperator = null, bool isMethodParam = false)
     {
         if (DefaultComponent)
         {

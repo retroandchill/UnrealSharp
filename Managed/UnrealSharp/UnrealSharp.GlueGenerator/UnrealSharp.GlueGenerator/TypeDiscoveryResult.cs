@@ -5,17 +5,22 @@ using UnrealSharp.GlueGenerator.NativeTypes;
 
 namespace UnrealSharp.GlueGenerator;
 
-public interface ITypeDiscoveryResult;
+public interface ITypeDiscoveryResult
+{
+    string Name { get; }
+}
 
-public sealed class TypeDiscoveryResult(UnrealType type, MemberDeclarationSyntax syntax, INamedTypeSymbol typeSymbol)
+public sealed class TypeDiscoveryResult(UnrealType type)
     : ITypeDiscoveryResult
 {
     public UnrealType Type { get; } = type;
-    public MemberDeclarationSyntax Syntax { get; } = syntax;
-    public INamedTypeSymbol TypeSymbol { get; } = typeSymbol;
+
+    public string Name => Type.SourceName;
 }
 
 public sealed class TypeDiscoveryError(Exception exception) : ITypeDiscoveryResult
 {
+    public string Name => "???";
+    
     public Exception Exception { get; } = exception;
 }
