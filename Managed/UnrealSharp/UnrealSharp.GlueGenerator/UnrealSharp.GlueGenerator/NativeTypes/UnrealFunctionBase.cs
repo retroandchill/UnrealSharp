@@ -395,7 +395,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
 
     public void ExportImplementationMethod(GeneratorStringBuilder builder)
     {
-        builder.AppendLine($"{Protection.AccessibilityToString()}partial {ReturnType.ManagedType} {SourceName}_Implementation({string.Join(", ", Properties.Select(p => $"{p.ManagedType} {p.SourceName}"))});");
+        builder.AppendLine($"{Protection.AccessibilityToString()}virtual partial {ReturnType.ManagedType} {SourceName}_Implementation({string.Join(", ", Properties.Select(p => $"{p.ManagedType} {p.SourceName}"))});");
     }
 
     public void ExportWrapperMethod(GeneratorStringBuilder builder, string instanceFunction)

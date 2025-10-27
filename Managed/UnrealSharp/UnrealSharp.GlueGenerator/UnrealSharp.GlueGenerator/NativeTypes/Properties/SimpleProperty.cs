@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace UnrealSharp.GlueGenerator.NativeTypes.Properties;
@@ -17,6 +18,6 @@ public record SimpleProperty : UnrealProperty
     public SimpleProperty(PropertyType type, string managedType, string sourceName, Accessibility accessibility, UnrealType outer) : base(type, sourceName, accessibility, outer)
     {
         ManagedType = managedType;
-        ShortEngineName = managedType.Substring(1);
+        ShortEngineName = managedType.Split('.').Last().Substring(1);
     }
 }

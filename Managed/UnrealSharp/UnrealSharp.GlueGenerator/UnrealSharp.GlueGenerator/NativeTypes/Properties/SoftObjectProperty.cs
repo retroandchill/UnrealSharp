@@ -9,4 +9,12 @@ public record SoftObjectProperty : TemplateProperty
     {
         
     }
+    
+    public SoftObjectProperty(ObjectProperty innerProperty, string sourceName, Accessibility accessibility, string protection, UnrealType outer) 
+        : base(new EquatableArray<UnrealProperty>([innerProperty]), PropertyType.SoftObject, 
+            $"SoftObjectPtr<{innerProperty.ManagedType}", "SoftObjectMarshaller", sourceName, 
+            accessibility, protection, outer)
+    {
+        CacheNativeTypePtr = true;
+    }
 }
