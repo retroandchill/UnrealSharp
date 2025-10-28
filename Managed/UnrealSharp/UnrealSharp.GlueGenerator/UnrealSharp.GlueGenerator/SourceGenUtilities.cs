@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using UnrealSharp.GlueGenerator.NativeTypes;
 
@@ -108,8 +109,9 @@ public static class SourceGenUtilities
                 string attributeName = attribute.AttributeClass.Name;
                 int index = attributeName.IndexOf("Attribute", StringComparison.OrdinalIgnoreCase);
                 string name = attributeName.Substring(0, index);
+                string value = attribute.ConstructorArguments.FirstOrDefault().Value as string ?? string.Empty;
                 
-                attributes.Add(new MetaData(name, ""));
+                attributes.Add(new MetaData(name, value));
             }
         }
 
