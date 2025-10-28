@@ -11,4 +11,10 @@ public record EnumProperty : FieldProperty
     {
         
     }
+    
+    public EnumProperty(string managedType, string sourceName, Accessibility accessibility, UnrealType outer) 
+        : base(PropertyType.Enum, managedType, sourceName, accessibility, outer)
+    {
+        
+    }
 }

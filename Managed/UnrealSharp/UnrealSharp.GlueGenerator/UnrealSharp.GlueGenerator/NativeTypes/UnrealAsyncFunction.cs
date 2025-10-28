@@ -15,6 +15,10 @@ public record UnrealAsyncFunction : UnrealFunctionBase
         
     }
     
+    public UnrealAsyncFunction(EFunctionFlags flags, string sourceName, string typeNameSpace, Accessibility accessibility, string assemblyName, UnrealType? outer = null) : base(flags, sourceName, typeNameSpace, accessibility, assemblyName, outer)
+    {
+    }
+    
     public override void ExportType(GeneratorStringBuilder generatorStringBuilder, SourceProductionContext spc)
     {
         List<UnrealProperty> properties = Properties.List;
