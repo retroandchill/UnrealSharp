@@ -422,7 +422,7 @@ public class MapMarshaller<TKey, TValue> where TKey : notnull
         return new TMap<TKey, TValue>(_nativeProperty, nativeBuffer, _keyFromNative, _keyToNative, _valueFromNative, _valueToNative);
     }
 
-    public void ToNative(IntPtr nativeBuffer, int arrayIndex, IDictionary<TKey, TValue> value)
+    public void ToNative(IntPtr nativeBuffer, int arrayIndex, IEnumerable<KeyValuePair<TKey, TValue>> value)
     {
         TMap<TKey, TValue> wrapper = MakeWrapper(nativeBuffer);
 
@@ -481,7 +481,7 @@ public class MapReadOnlyMarshaller<TKey, TValue> where TKey : notnull
         return new TMap<TKey, TValue>(_nativeProperty, nativeBuffer, _keyFromNative, _keyToNative, _valueFromNative, _valueToNative);
     }
 
-    public void ToNative(IntPtr nativeBuffer, int arrayIndex, IReadOnlyDictionary<TKey, TValue> value)
+    public void ToNative(IntPtr nativeBuffer, int arrayIndex, IEnumerable<KeyValuePair<TKey, TValue>> value)
     {
         TMap<TKey, TValue> wrapper = MakeWrapper(nativeBuffer);
 
@@ -534,17 +534,12 @@ public class MapCopyMarshaller<TKey, TValue> where TKey : notnull
         return result;
     }
     
-    public void ToNative(IntPtr nativeBuffer, int arrayIndex, IDictionary<TKey, TValue> value)
+    public void ToNative(IntPtr nativeBuffer, int arrayIndex, IEnumerable<KeyValuePair<TKey, TValue>> value)
     {
         ToNativeInternal(nativeBuffer, 0, value, ref _helper, _keyToNative, _valueToNative);
     }
-    
-    public void ToNative(IntPtr nativeBuffer, int arrayIndex, IReadOnlyDictionary<TKey, TValue> value)
-    {
-        ToNativeInternal(nativeBuffer, 0, value.ToDictionary(), ref _helper, _keyToNative, _valueToNative);
-    }
 
-    private void ToNativeInternal(IntPtr nativeBuffer, int arrayIndex, IDictionary<TKey, TValue> value,
+    private void ToNativeInternal(IntPtr nativeBuffer, int arrayIndex, IEnumerable<KeyValuePair<TKey, TValue>> value,
         ref ScriptMapHelper helper, MarshallingDelegates<TKey>.ToNative keyToNative,
         MarshallingDelegates<TValue>.ToNative valueToNative)
     {
