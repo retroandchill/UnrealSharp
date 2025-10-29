@@ -113,7 +113,7 @@ void UK2Node_CSAsyncAction::GetMenuActions(FBlueprintActionDatabaseRegistrar& Ac
 
 void UK2Node_CSAsyncAction::ExpandNode(class FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph)
 {
-	if (ProxyClass->bLayoutChanging)
+	if (ProxyClass == nullptr || ProxyClass->bLayoutChanging)
 	{
 		return;
 	}
