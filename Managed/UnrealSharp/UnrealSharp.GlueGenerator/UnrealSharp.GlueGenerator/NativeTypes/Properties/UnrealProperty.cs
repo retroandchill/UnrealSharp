@@ -239,7 +239,7 @@ public record UnrealProperty : UnrealType
         UnrealProperty property = (UnrealProperty)topType;
         property.PropertyFlags |= (EPropertyFlags) flags.Value!;
 
-        if (!property.PropertyFlags.HasFlag(EPropertyFlags.PersistentInstance | EPropertyFlags.InstancedReference))
+        if (!property.PropertyFlags.HasFlag(EPropertyFlags.PersistentInstance) && !property.PropertyFlags.HasFlag(EPropertyFlags.InstancedReference))
         {
             return;
         }
