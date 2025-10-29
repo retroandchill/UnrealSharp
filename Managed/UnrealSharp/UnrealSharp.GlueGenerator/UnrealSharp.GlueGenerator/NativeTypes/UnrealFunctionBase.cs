@@ -117,6 +117,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
         {
             ISymbol returnValueSymbol = model.GetSymbolInfo(syntax.Type).Symbol!;
             ReturnType = PropertyFactory.CreateProperty(propertyTypeSymbol, syntax.Type, returnValueSymbol, this);
+            ReturnType.SourceName = SourceGenUtilities.ReturnValueName;
             ReturnType.PropertyFlags |= EPropertyFlags.ReturnParm | EPropertyFlags.OutParm | EPropertyFlags.Parm |
                                         EPropertyFlags.BlueprintVisible | EPropertyFlags.BlueprintReadOnly;
             
@@ -180,6 +181,7 @@ public abstract record UnrealFunctionBase : UnrealStruct
             }
 
             ReturnType = returnTypeSymbol is not null ? PropertyFactory.CreateProperty(returnTypeSymbol, returnType, returnValueSymbol, this) : new VoidProperty(this);
+            ReturnType.SourceName = SourceGenUtilities.ReturnValueName;
             ReturnType.PropertyFlags |= EPropertyFlags.ReturnParm | EPropertyFlags.OutParm | EPropertyFlags.Parm |
                                          EPropertyFlags.BlueprintVisible | EPropertyFlags.BlueprintReadOnly;
             
