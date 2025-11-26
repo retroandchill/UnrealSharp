@@ -15,8 +15,8 @@ public struct FName : IEquatable<FName>, IComparable<FName>
     private uint Number;
 #else
 	private uint ComparisonIndex;
-    private uint DisplayIndex;
     private uint Number;
+    private uint DisplayIndex;
 #endif
 
     public static readonly FName None = new(0, 0);
