@@ -138,13 +138,24 @@ void UCSHotReloadSubsystem::StartHotReload(bool bPromptPlayerWithNewProject)
 		const FString& ProjectName = ProjectsByLoadOrder[i];
 		UCSManagedAssembly* Assembly = CSharpManager.FindAssembly(*ProjectName);
 
-		if (IsValid(Assembly) && !Assembly->UnloadManagedAssembly())
+		if (IsValid(Assembly))
 		{
-			UE_LOGFMT(LogUnrealSharpEditor, Error, "Failed to unload assembly: {0}", *ProjectName);
-			bUnloadFailed = true;
-			break;
+		    Assembly->UnloadManagedAssembly(false);
 		}
 	}
+    
+    for (int32 i = ProjectsByLoadOrder.Num() - 1; i >= 0; --i)
+    {
+        const FString& ProjectName = ProjectsByLoadOrder[i];
+        UCSManagedAssembly* Assembly = CSharpManager.FindAssembly(*ProjectName);
+        if (IsValid(Assembly) && !Assembly->UnloadManagedAssembly())
+        {
+            Assembly->UnloadManagedAssembly(false);
+            UE_LOGFMT(LogUnrealSharpEditor, Error, "Failed to unload assembly: {0}", *ProjectName);
+            bUnloadFailed = true;
+            break;
+        }
+    }
 
 	if (bUnloadFailed)
 	{

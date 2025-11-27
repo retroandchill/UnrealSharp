@@ -69,7 +69,7 @@ bool UCSManagedAssembly::LoadManagedAssembly(bool bisCollectible)
 	return true;
 }
 
-bool UCSManagedAssembly::UnloadManagedAssembly()
+bool UCSManagedAssembly::UnloadManagedAssembly(bool bWaitForUnload)
 {
 	if (!IsValidAssembly())
 	{
@@ -87,12 +87,15 @@ bool UCSManagedAssembly::UnloadManagedAssembly()
 	ManagedTypeGCHandles.Reset();
 	AllocatedGCHandles.Reset();
 
-	// Don't need the assembly handle anymore, we use the path to unload the assembly.
-	AssemblyGCHandle->Dispose(AssemblyGCHandle->GetHandle());
-	AssemblyGCHandle.Reset();
+    if (bWaitForUnload)
+    {
+        // Don't need the assembly handle anymore, we use the path to unload the assembly.
+        AssemblyGCHandle->Dispose(AssemblyGCHandle->GetHandle());
+        AssemblyGCHandle.Reset();
+    }
 
     UCSManager::Get().OnManagedAssemblyUnloadedEvent().Broadcast(this);
-	return UCSManager::Get().GetManagedPluginsCallbacks().UnloadPlugin(*AssemblyFilePath);
+	return UCSManager::Get().GetManagedPluginsCallbacks().UnloadPlugin(*AssemblyFilePath, bWaitForUnload);
 }
 
 TSharedPtr<FGCHandle> UCSManagedAssembly::FindTypeHandle(const FCSFieldName& FieldName)
