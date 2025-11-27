@@ -29,7 +29,7 @@ public:
 	void InitializeManagedAssembly(const FStringView InAssemblyPath);
 
 	UNREALSHARPCORE_API bool LoadManagedAssembly(bool bIsCollectible = true);
-	UNREALSHARPCORE_API bool UnloadManagedAssembly();
+	UNREALSHARPCORE_API bool UnloadManagedAssembly(bool bWaitForUnload = true);
 
 	UNREALSHARPCORE_API bool IsValidAssembly() const { return AssemblyGCHandle.IsValid() && !AssemblyGCHandle->IsNull(); }
 	

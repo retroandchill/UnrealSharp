@@ -18,7 +18,7 @@ struct FCSTypeReferenceReflectionData;
 struct FCSManagedPluginCallbacks
 {
 	using LoadPluginCallback = FGCHandleIntPtr(__stdcall*)(const TCHAR*, bool);
-	using UnloadPluginCallback = bool(__stdcall*)(const TCHAR*);
+	using UnloadPluginCallback = bool(__stdcall*)(const TCHAR*, bool);
 
 	LoadPluginCallback LoadPlugin = nullptr;
 	UnloadPluginCallback UnloadPlugin = nullptr;

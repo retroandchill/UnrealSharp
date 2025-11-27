@@ -83,7 +83,7 @@ public static class PluginLoader
         return null;
     }
 
-    public static bool UnloadPlugin(string assemblyPath)
+    public static bool UnloadPlugin(string assemblyPath, bool waitForUnload)
     {
         const int warnThresholdMs = 200;
         const int timeoutMs = 2000;
@@ -102,6 +102,7 @@ public static class PluginLoader
         try
         {
             LogUnrealSharpPlugins.Log($"Unloading plugin {assemblyName}...");
+            if (!waitForUnload) return true;
 
             Stopwatch stopWatch = Stopwatch.StartNew();
             bool hasWarned = false;
