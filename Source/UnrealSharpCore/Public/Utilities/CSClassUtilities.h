@@ -4,6 +4,7 @@
 #include "Types/CSClass.h"
 #include "Types/CSInterface.h"
 #include "Types/CSSkeletonClass.h"
+#include "Engine/DeveloperSettings.h"
 
 class UNREALSHARPCORE_API FCSClassUtilities
 {

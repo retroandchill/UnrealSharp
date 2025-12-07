@@ -4,6 +4,8 @@
 #include <hostfxr.h>
 #include "CSManagedAssembly.h"
 #include "CSManagedCallbacksCache.h"
+#include "Templates/SubclassOf.h"
+#include "UObject/Package.h"
 #include "CSManager.generated.h"
 
 class UCSTypeBuilderManager;
@@ -12,6 +14,7 @@ class UCSEnum;
 class UCSScriptStruct;
 class FUnrealSharpCoreModule;
 class UFunctionsExporter;
+class USubsystem;
 struct FCSNamespace;
 struct FCSTypeReferenceReflectionData;
 

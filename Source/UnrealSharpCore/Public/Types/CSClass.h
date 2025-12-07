@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "CSManagedTypeInterface.h"
 #include "Engine/BlueprintGeneratedClass.h"
+#include "Engine/Blueprint.h"
 #include "CSClass.generated.h"
 
 UCLASS(MinimalAPI)

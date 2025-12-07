@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #if ENGINE_MINOR_VERSION >= 4
 #define CS_EInternalObjectFlags_AllFlags EInternalObjectFlags_AllFlags

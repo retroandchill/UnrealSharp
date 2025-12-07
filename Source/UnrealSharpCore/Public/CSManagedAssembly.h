@@ -7,6 +7,7 @@
 #include "CSFieldType.h"
 #include "Misc/Paths.h"
 #include "Utilities/CSClassUtilities.h"
+#include "UObject/Package.h"
 #include "Utilities/CSUtilities.h"
 #include "CSManagedAssembly.generated.h"
 
