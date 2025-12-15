@@ -147,6 +147,11 @@ void UCSHotReloadSubsystem::PerformHotReload()
 	PendingModifiedAssemblies.Reset();
 
 	Progress.EnterProgressFrame(1, LOCTEXT("HotReload_Reloading", "Reloading Assemblies..."));
+    
+    for (UCSManagedAssembly* Assembly : AssembliesSortedByDependencies)
+    {
+        Assembly->UnloadManagedAssembly(false);
+    }
 	
 	for (UCSManagedAssembly* Assembly : AssembliesSortedByDependencies)
 	{
